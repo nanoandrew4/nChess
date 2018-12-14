@@ -1,16 +1,16 @@
 #include "pieces/Rook.hpp"
 #include "Board.hpp"
 
-Rook::Rook() {
-    initializeMoves();
+std::array<std::uint64_t, 64> Rook::moves;
+
+void Rook::initialize () {
+    moves = generateMoves();
 }
 
-Rook::~Rook() {
-
-}
-
-void Rook::initializeMoves() {
+std::array<std::uint64_t, 64> Rook::generateMoves() {
+    std::array<std::uint64_t, 64> moves;
     std::uint64_t baseBit = 1;
+
     for (int i = 0; i < 64; ++i) {
         // Horizontal moves
         std::uint64_t move = 0;
@@ -23,6 +23,8 @@ void Rook::initializeMoves() {
                 move += baseBit << j;
         moves.at(i) = move;
     }
+
+    return moves;
 }
 
 void Rook::visDebug(int pos) {

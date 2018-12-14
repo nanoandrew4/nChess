@@ -4,16 +4,17 @@
 #include <iostream>
 #include <bitset>
 
-King::King() {
-    initializeMoves();
+std::array<std::uint64_t, 64> King::moves;
+
+void King::initialize() {
+    moves = generateMoves();
 }
 
-King::~King() = default;
-
-void King::initializeMoves() {
+std::array<std::uint64_t, 64> King::generateMoves() {
     bool canPlaceRight, canPlaceLeft, canPlaceAbove, canPlaceBelow;
-
+    std::array<std::uint64_t, 64> moves;
     std::uint64_t bitShiftingBaseVal = 1;
+
     for (int i = 0; i < 64; ++i) {
         std::uint64_t move = 0;
 
@@ -41,6 +42,8 @@ void King::initializeMoves() {
 
         moves.at(i) = move;
     }
+
+    return moves;
 }
 
 void King::visDebug(int pos) {

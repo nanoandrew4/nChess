@@ -3,12 +3,12 @@
 #include <array>
 #include <cstdlib>
 
-class Rook
+class Queen
 {
   public:
-    ~Rook() = default;
+    ~Queen() = default;
 
-  static void initialize();
+    static void initialize();
     static std::array<std::uint64_t, 64> generateMoves();
     static void visDebug(int pos);
 

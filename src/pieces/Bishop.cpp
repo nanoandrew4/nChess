@@ -1,32 +1,38 @@
 #include "pieces/Bishop.hpp"
 #include "Board.hpp"
 
-Bishop::Bishop()
+std::array<std::uint64_t, 64> Bishop::moves;
+
+void Bishop::initialize()
 {
-    initializeMoves();
+    moves = generateMoves();
 }
 
-Bishop::~Bishop()
+std::array<std::uint64_t, 64> Bishop::generateMoves()
 {
-}
-
-void Bishop::initializeMoves()
-{
+    std::array<std::uint64_t, 64> moves;
     std::uint64_t baseBit = 1;
+
     for (int i = 0; i < 64; ++i)
     {
         std::uint64_t move = 0;
-        for (int j = i + 7; i % 8 != 0 && (j + 1) % 8 != 0 && j < 64; j += 7) // Piece to top right diagonal
+        // Piece to top right diagonal
+        for (int j = i + 7; i % 8 != 0 && (j + 1) % 8 != 0 && j < 64; j += 7)
             move += baseBit << j;
-        for (int j = i - 7; i % 8 != 0 && (j + 1) % 8 != 0 && j >= 0; j -= 7) // Piece to bottom left diagonal
+        // Piece to bottom left diagonal
+        for (int j = i - 7; (i + 1) % 8 != 0 && j % 8 != 0 && j >= 0; j -= 7)
             move += baseBit << j;
-        for (int j = i + 9; (i + 1) % 8 != 0 && j % 8 != 0 && j < 64; j += 9) // Piece to top left diagonal
+        // Piece to top left diagonal
+        for (int j = i + 9; (i + 1) % 8 != 0 && j % 8 != 0 && j < 64; j += 9)
             move += baseBit << j;
-        for (int j = i - 9; (i + 1) % 8 != 0 && j % 8 != 0 && j >= 0; j -= 9) // Piece to bottom right diagonal
+        // Piece to bottom right diagonal
+        for (int j = i - 9; i % 8 != 0 && (j + 1) % 8 != 0 && j >= 0; j -= 9)
             move += baseBit << j;
 
         moves.at(i) = move;
     }
+
+    return moves;
 }
 
 void Bishop::visDebug(int pos)

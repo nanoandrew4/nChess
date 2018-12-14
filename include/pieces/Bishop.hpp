@@ -5,13 +5,13 @@
 
 class Bishop
 {
-  public:
-    Bishop();
-    ~Bishop();
+public:
+  ~Bishop() = default;
 
-    void visDebug(int pos);
+  static void initialize();
+  static std::array<std::uint64_t, 64> generateMoves();
+  static void visDebug(int pos);
 
-  private:
-    std::array<std::uint64_t, 64> moves;
-    void initializeMoves();
+private:
+  static std::array<std::uint64_t, 64> moves;
 };

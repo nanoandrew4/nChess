@@ -3,15 +3,16 @@
 #include <array>
 #include <cstdlib>
 
-class Knight {
+class Knight
+{
 
-public:
-    Knight();
-    ~Knight();
+  public:
+    ~Knight() = default;
 
-    void visDebug(int pos);
-private:
-    std::array<std::uint64_t, 64> moves;
+    static void initialize();
+    static std::array<std::uint64_t, 64> generateMoves();
+    static void visDebug(int pos);
 
-    void initializeMoves();
+  private:
+    static std::array<std::uint64_t, 64> moves;
 };

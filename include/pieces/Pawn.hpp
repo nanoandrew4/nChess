@@ -5,14 +5,14 @@
 
 class Pawn
 {
-  public:
-    Pawn();
-    ~Pawn();
+public:
+  ~Pawn() = default;
 
-    void visDebug(int pos, bool white);
-  private:
-    std::array<std::uint64_t, 48> blackMoves;
-    std::array<std::uint64_t, 48> whiteMoves;
+  static void initialize();
+  static std::array<std::uint64_t, 48> generateMoves(bool white);
+  static void visDebug(int pos, bool white);
 
-    void initializeMoves();
+private:
+  static std::array<std::uint64_t, 48> blackMoves;
+  static std::array<std::uint64_t, 48> whiteMoves;
 };

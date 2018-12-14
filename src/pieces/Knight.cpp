@@ -1,23 +1,17 @@
 #include "pieces/Knight.hpp"
 #include "Board.hpp"
 
-Knight::Knight()
-{
-    initializeMoves();
+std::array<std::uint64_t, 64> Knight::moves;
+
+void Knight::initialize() {
+    moves = generateMoves();
 }
 
-Knight::~Knight()
+std::array<std::uint64_t, 64> Knight::generateMoves()
 {
-}
-
-void Knight::visDebug(int pos)
-{
-    Board::visDebug(moves.at(pos));
-}
-
-void Knight::initializeMoves()
-{
+    std::array<std::uint64_t, 64> moves;
     std::uint64_t baseBit = 1;
+
     for (int i = 0; i < 64; ++i)
     {
         std::uint64_t move = 0;
@@ -40,4 +34,11 @@ void Knight::initializeMoves()
 
         moves.at(i) = move;
     }
+
+    return moves;
+}
+
+void Knight::visDebug(int pos)
+{
+    Board::visDebug(moves.at(pos));
 }
