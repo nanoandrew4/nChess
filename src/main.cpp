@@ -4,9 +4,11 @@
 #include "pieces/Knight.hpp"
 #include "pieces/Bishop.hpp"
 #include "pieces/Queen.hpp"
+#include "UCIParser.hpp"
+
+#include <iostream>
 
 int main()
 {
-    Pawn::initialize();
-    Pawn::visDebug(0, true);
+    std::cout << UCIParser::parse("e4h1") << std::endl;
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <cstdint>
 
 class Board {
@@ -31,4 +32,7 @@ private:
     std::uint64_t blackRookBB = 0x8100000000000000;
     std::uint64_t blackQueenBB = 0x1000000000000000;
     std::uint64_t blackKingBB = 0x0800000000000000;
+
+    const static std::uint64_t baseBit = 1;
+    static std::vector<int> getSetBits(std::uint64_t val);
 };
