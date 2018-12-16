@@ -10,5 +10,6 @@
 
 int main()
 {
-    std::cout << UCIParser::parse("e4h1") << std::endl;
+    Board b;
+    std::cout << UCIParser::parse(b, "e4h1") << std::endl;
 }

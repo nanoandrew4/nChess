@@ -1,6 +1,6 @@
 #include "UCIParser.hpp"
 
-bool UCIParser::parse(std::string moveStr)
+bool UCIParser::parse(Board &board, std::string moveStr)
 {
     if (moveStr.length() < 4 || moveStr.length() > 5)
     {
@@ -18,11 +18,10 @@ bool UCIParser::parse(std::string moveStr)
         return false;
     }
 
-    int startPos = (moveStr[0] - 97) + (8 * (moveStr[1] - 1));
-    int endPos = (moveStr[2] - 97) + (8 * (moveStr[3] - 1));
+    std::uint64_t startPos = (moveStr[0] - 97) + (8 * (moveStr[1] - 1));
+    std::uint64_t endPos = (moveStr[2] - 97) + (8 * (moveStr[3] - 1));
 
-    // Make move
-
+    board.makeMove(startPos, endPos);
     return true;
 }
 
