@@ -13,12 +13,12 @@ public:
 
   static void visDebug(std::uint64_t board);
 
-  bool makeMove(std::uint64_t startPos, std::uint64_t endPos);
+  bool makeMove(const std::uint64_t startPos, const std::uint64_t endPos);
 
 private:
   /* 
-     * All positions are little-endian. These values set the inital positions for the bit boards
-     */
+   * All positions are little-endian. These values set the inital positions for the bit boards
+   */
   std::uint64_t globalBB = 0xffff00000000ffff;
 
   std::uint64_t whiteBB = 0x000000000000ffff;
@@ -47,18 +47,20 @@ private:
 
   void clone(const Board *src, Board *dest);
 
-  static std::vector<int> getSetBits(std::uint64_t val);
-  bool removeCapturedPiece(std::uint64_t piecePos);
+  static std::vector<int> getSetBits(const std::uint64_t val);
+  bool removeCapturedPiece(const std::uint64_t piecePos);
 
   void endTurn();
   void undoMove();
 
   bool isLeavingKingInCheck();
 
-  bool movePawnIfLegal(std::uint64_t startPos, std::uint64_t endPos);
-  bool moveRookIfLegal(std::uint64_t startPos, std::uint64_t endPos);
-  bool moveKnightIfLegal(std::uint64_t startPos, std::uint64_t endPos);
-  bool moveBishopIfLegal(std::uint64_t startPos, std::uint64_t endPos);
-  bool moveQueenIfLegal(std::uint64_t startPos, std::uint64_t endPos);
-  bool moveKingIfLegal(std::uint64_t startPos, std::uint64_t endPos);
+  bool movePawnIfLegal(const std::uint64_t startPos, const std::uint64_t endPos);
+  bool moveRookIfLegal(const std::uint64_t startPos, const std::uint64_t endPos);
+  bool moveKnightIfLegal(const std::uint64_t startPos, const std::uint64_t endPos);
+  bool moveBishopIfLegal(const std::uint64_t startPos, const std::uint64_t endPos);
+  bool moveQueenIfLegal(const std::uint64_t startPos, const std::uint64_t endPos);
+  bool moveKingIfLegal(const std::uint64_t startPos, const std::uint64_t endPos);
+
+  void movePieceOnBB(const std::uint64_t startPos, const std::uint64_t endPos, std::uint64_t &pieceBB);
 };
