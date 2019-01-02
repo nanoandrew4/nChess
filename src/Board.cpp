@@ -4,12 +4,33 @@
 #include <string>
 #include <iostream>
 
-Board::Board()
+Board::Board(const Board *b)
 {
+    clone(b, this);
 }
 
-Board::~Board()
+void Board::clone(const Board *src, Board *dest)
 {
+    dest->globalBB = src->globalBB;
+
+    dest->whiteBB = src->whiteBB;
+    dest->whitePawnBB = src->whitePawnBB;
+    dest->whiteRookBB = src->whiteRookBB;
+    dest->whiteKnightBB = src->whiteKnightBB;
+    dest->whiteBishopBB = src->whiteBishopBB;
+    dest->whiteQueenBB = src->whiteQueenBB;
+    dest->whiteKingBB = src->whiteKingBB;
+
+    dest->blackBB = src->blackBB;
+    dest->blackPawnBB = src->blackPawnBB;
+    dest->blackRookBB = src->blackRookBB;
+    dest->blackKnightBB = src->blackKnightBB;
+    dest->blackBishopBB = src->blackBishopBB;
+    dest->blackQueenBB = src->blackQueenBB;
+    dest->blackKingBB = src->blackKingBB;
+
+    dest->currentTurn = src->currentTurn;
+    dest->boardHistory = src->boardHistory; // TODO: Check if it copies ref
 }
 
 void Board::visDebug(std::uint64_t board)
@@ -54,6 +75,8 @@ bool Board::removeCapturedPiece(std::uint64_t piecePos)
     {
         // Undo move that led to king being taken, and continue search
         // Maybe track occurrences to see if it is worth handling some other way
+        std::cout << "King capture attempted, skipping move in tree..." << std::endl;
+        undoMove();
         return false;
     }
     else
@@ -87,6 +110,25 @@ bool Board::makeMove(std::uint64_t startPos, std::uint64_t endPos)
 
     endTurn();
     return true;
+}
+
+void Board::endTurn()
+{
+    boardHistory.push_back(Board(this)); // Copies the board into a vector, so that the state can be restored if needed
+    ++currentTurn;
+    currBB = (currentTurn & 1 == 0 ? whiteBB : blackBB);
+}
+
+void Board::undoMove()
+{
+    if (boardHistory.size() > 0)
+    {
+        Board prevBoardState = boardHistory.back();
+        boardHistory.pop_back();
+        clone(&prevBoardState, this);
+    } else {
+        std::cout << "Undo should not have happened, no moves to undo" << std::endl; // For debugging purposes
+    }
 }
 
 bool Board::movePawnIfLegal(std::uint64_t startPos, std::uint64_t endPos)
@@ -134,4 +176,20 @@ bool Board::moveRookIfLegal(std::uint64_t startPos, std::uint64_t endPos)
     if (((currBB == whiteBB ? blackBB : whiteBB) & (baseBit << endPos)) != 0)
         return removeCapturedPiece(endPos);
     return true;
+}
+
+bool Board::moveKnightIfLegal(std::uint64_t startPos, std::uint64_t endPos)
+{
+}
+
+bool Board::moveBishopIfLegal(std::uint64_t startPos, std::uint64_t endPos)
+{
+}
+
+bool Board::moveQueenIfLegal(std::uint64_t startPos, std::uint64_t endPos)
+{
+}
+
+bool Board::moveKingIfLegal(std::uint64_t startPos, std::uint64_t endPos)
+{
 }
