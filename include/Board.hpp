@@ -2,16 +2,19 @@
 
 #include <vector>
 #include <cstdint>
+#include <string>
+#include <iostream>
 
 class Board
 {
 
 public:
-  Board();
+  Board() = default;
   Board(const Board *b);
   ~Board() = default;
 
   static void visDebug(std::uint64_t board);
+  void displayBoard();
 
   bool makeMove(const std::uint64_t startPos, const std::uint64_t endPos);
 
@@ -47,7 +50,9 @@ private:
 
   void clone(const Board *src, Board *dest);
 
-  static std::vector<int> getSetBits(const std::uint64_t val);
+  static void loadPiecesToVisBoard(std::vector<std::string> &board, const std::uint64_t bitBoard, const std::string displayValue);
+
+  static std::vector<std::uint64_t> getSetBits(const std::uint64_t val);
   bool removeCapturedPiece(const std::uint64_t piecePos);
 
   void endTurn();

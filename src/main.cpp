@@ -10,6 +10,17 @@
 
 int main()
 {
-    // Board b;
-    // std::cout << UCIParser::parse(b, "e4h1") << std::endl;
+
+    Board b;
+    while (true)
+    {
+        b.displayBoard();
+        std::string move;
+
+        do
+        {
+            std::cout << "Enter move in UCI format: ";
+            std::cin >> move;
+        } while (!UCIParser::parse(b, move));
+    }
 }
