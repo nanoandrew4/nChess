@@ -5,6 +5,13 @@
 #include <string>
 #include <iostream>
 
+#include "pieces/Rook.hpp"
+#include "pieces/Knight.hpp"
+#include "pieces/Pawn.hpp"
+#include "pieces/Bishop.hpp"
+#include "pieces/Queen.hpp"
+#include "pieces/King.hpp"
+
 class Board
 {
 
@@ -17,6 +24,8 @@ public:
   void displayBoard();
 
   bool makeMove(const std::uint64_t startPos, const std::uint64_t endPos);
+
+  int getCurrentTurn() { return currentTurn; }
 
 private:
   /* 
@@ -44,7 +53,7 @@ private:
   int currentTurn = 0;
 
   const static std::uint64_t baseBit = 1;
-  std::uint64_t currBB = whiteBB;
+  std::uint64_t *currBB = &whiteBB;
 
   std::vector<Board> boardHistory;
 

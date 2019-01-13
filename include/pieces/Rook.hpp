@@ -5,13 +5,14 @@
 
 class Rook
 {
-  public:
-    ~Rook() = default;
+public:
+  ~Rook() = default;
 
   static void initialize();
-    static std::array<std::uint64_t, 64> generateMoves();
-    static void visDebug(int pos);
+  static std::array<std::uint64_t, 64> generateMoves();
+  static void visDebug(int pos);
+  const static std::array<std::uint64_t, 64> getMoves() { return moves; }
 
-  private:
-    static std::array<std::uint64_t, 64> moves;
+private:
+  static std::array<std::uint64_t, 64> moves;
 };

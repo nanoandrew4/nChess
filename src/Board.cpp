@@ -100,17 +100,17 @@ bool Board::removeCapturedPiece(std::uint64_t piecePos)
     std::cout << "Removing captured piece" << std::endl;
     std::uint64_t bitPos = (baseBit << piecePos);
 
-    if ((bitPos & (currBB == whiteBB ? blackPawnBB : whitePawnBB)) != 0)
-        (currBB == whiteBB ? blackPawnBB : whitePawnBB) -= bitPos;
-    else if ((bitPos & (currBB == whiteBB ? blackRookBB : whiteRookBB)) != 0)
-        (currBB == whiteBB ? blackRookBB : whiteRookBB) -= bitPos;
-    else if ((bitPos & (currBB == whiteBB ? blackKnightBB : whiteKnightBB)) != 0)
-        (currBB == whiteBB ? blackKnightBB : whiteKnightBB) -= bitPos;
-    else if ((bitPos & (currBB == whiteBB ? blackBishopBB : whiteBishopBB)) != 0)
-        (currBB == whiteBB ? blackBishopBB : whiteBishopBB) -= bitPos;
-    else if ((bitPos & (currBB == whiteBB ? blackQueenBB : whiteQueenBB)) != 0)
-        (currBB == whiteBB ? blackQueenBB : whiteQueenBB) -= bitPos;
-    else if ((bitPos & (currBB == whiteBB ? blackKingBB : whiteKingBB)) != 0)
+    if ((bitPos & (*currBB == whiteBB ? blackPawnBB : whitePawnBB)) != 0)
+        (*currBB == whiteBB ? blackPawnBB : whitePawnBB) -= bitPos;
+    else if ((bitPos & (*currBB == whiteBB ? blackRookBB : whiteRookBB)) != 0)
+        (*currBB == whiteBB ? blackRookBB : whiteRookBB) -= bitPos;
+    else if ((bitPos & (*currBB == whiteBB ? blackKnightBB : whiteKnightBB)) != 0)
+        (*currBB == whiteBB ? blackKnightBB : whiteKnightBB) -= bitPos;
+    else if ((bitPos & (*currBB == whiteBB ? blackBishopBB : whiteBishopBB)) != 0)
+        (*currBB == whiteBB ? blackBishopBB : whiteBishopBB) -= bitPos;
+    else if ((bitPos & (*currBB == whiteBB ? blackQueenBB : whiteQueenBB)) != 0)
+        (*currBB == whiteBB ? blackQueenBB : whiteQueenBB) -= bitPos;
+    else if ((bitPos & (*currBB == whiteBB ? blackKingBB : whiteKingBB)) != 0)
     {
         // Undo move that led to king being taken, and continue search
         // Maybe track occurrences to see if it is worth handling some other way
@@ -124,8 +124,8 @@ bool Board::removeCapturedPiece(std::uint64_t piecePos)
         return false;
     }
 
-    (currBB == whiteBB ? blackBB : whiteBB) -= bitPos;
-
+    (*currBB == whiteBB ? blackBB : whiteBB) -= bitPos;
+    globalBB -= bitPos;
     return true;
 }
 
@@ -138,13 +138,13 @@ bool Board::makeMove(std::uint64_t startPos, std::uint64_t endPos)
         return false;
     }
 
-    if ((currBB & (baseBit << startPos)) == 0)
+    if ((*currBB & (baseBit << startPos)) == 0)
     {
         std::cout << "No piece to move" << std::endl;
         return false;
     }
 
-    if ((currBB & (baseBit << endPos)) != 0)
+    if ((*currBB & (baseBit << endPos)) != 0)
     {
         std::cout << "Cannot capture own piece" << std::endl;
         return false;
@@ -173,7 +173,7 @@ bool Board::makeMove(std::uint64_t startPos, std::uint64_t endPos)
     if (!legal)
         return false;
 
-    if (((currBB == whiteBB ? blackBB : whiteBB) & (baseBit << endPos)) != 0)
+    if (((*currBB == whiteBB ? blackBB : whiteBB) & (baseBit << endPos)) != 0)
         return removeCapturedPiece(endPos);
 
     endTurn();
@@ -184,7 +184,7 @@ void Board::endTurn()
 {
     boardHistory.push_back(Board(this)); // Copies the board into a vector, so that the state can be restored if needed
     ++currentTurn;
-    currBB = ((currentTurn & 1) == 0 ? whiteBB : blackBB);
+    currBB = &((currentTurn & 1) == 0 ? whiteBB : blackBB);
 }
 
 void Board::undoMove()
@@ -203,16 +203,15 @@ void Board::undoMove()
 
 void Board::movePieceOnBB(const std::uint64_t startPos, const std::uint64_t endPos, std::uint64_t &pieceBB)
 {
-    currBB -= (baseBit << startPos);
-    pieceBB -= (baseBit << startPos);
-
-    currBB += (baseBit << endPos);
-    pieceBB += (baseBit << endPos);
+    *currBB += ((baseBit << endPos) - (baseBit << startPos));
+    pieceBB += ((baseBit << endPos) - (baseBit << startPos));
+    globalBB += ((baseBit << endPos) - (baseBit << startPos));
 }
 
 bool Board::movePawnIfLegal(std::uint64_t startPos, std::uint64_t endPos)
 {
-    std::uint64_t posDiff = (endPos - startPos) * ((currBB == blackBB) ? -1 : 1);
+    std::uint64_t posDiff = (endPos - startPos) * ((*currBB == blackBB) ? -1 : 1);
+    // TODO: MAKE USE OF MOVE BIT BOARDS, TOO MANY OPS TAKING PLACE HERE
 
     if (posDiff == 16 && startPos >> 3 != 1 && startPos >> 3 != 6)
     {
@@ -224,13 +223,13 @@ bool Board::movePawnIfLegal(std::uint64_t startPos, std::uint64_t endPos)
         std::cout << "Pawn move was illegal" << std::endl;
         return false;
     }
-    else if ((posDiff == 7 || posDiff == 9) && ((currBB == whiteBB ? blackBB : whiteBB) & (baseBit << endPos)) == 0)
+    else if ((posDiff == 7 || posDiff == 9) && ((*currBB == whiteBB ? blackBB : whiteBB) & (baseBit << endPos)) == 0)
     {
         std::cout << "No piece to capture" << std::endl;
         return false;
     }
 
-    movePieceOnBB(startPos, endPos, currBB == whiteBB ? whitePawnBB : blackPawnBB);
+    movePieceOnBB(startPos, endPos, *currBB == whiteBB ? whitePawnBB : blackPawnBB);
 
     if (posDiff == 7 || posDiff == 9)
         return removeCapturedPiece(endPos);
@@ -239,38 +238,38 @@ bool Board::movePawnIfLegal(std::uint64_t startPos, std::uint64_t endPos)
 
 bool Board::moveRookIfLegal(std::uint64_t startPos, std::uint64_t endPos)
 {
-    if ((endPos - startPos) % 8 != 0 || ((endPos / 8) - (startPos / 8)) != 0)
+    if ((Rook::getMoves().at(startPos)) & (baseBit << endPos) == 0)
     {
         std::cout << "Rook is not moving on a file" << std::endl;
         return false;
     }
 
     int step = ((endPos - startPos) % 8 == 0) ? (startPos < endPos ? 8 : -8) : (startPos < endPos ? 1 : -1);
-    for (std::uint64_t pos = startPos; pos != endPos; pos += step)
+    for (std::uint64_t pos = startPos + step; pos != endPos; pos += step)
     {
-        if ((currBB & (baseBit << pos)) != 0)
+        if ((globalBB & (baseBit << pos)) != 0)
         {
             std::cout << "There is a piece between the starting and ending positions" << std::endl;
             return false;
         }
     }
 
-    movePieceOnBB(startPos, endPos, (currBB == whiteBB ? whiteRookBB : blackRookBB));
+    movePieceOnBB(startPos, endPos, (*currBB == whiteBB ? whiteRookBB : blackRookBB));
 
-    if (((currBB == whiteBB ? blackBB : whiteBB) & (baseBit << endPos)) != 0)
+    if (((*currBB == whiteBB ? blackBB : whiteBB) & (baseBit << endPos)) != 0)
         return removeCapturedPiece(endPos);
     return true;
 }
 
 bool Board::moveKnightIfLegal(std::uint64_t startPos, std::uint64_t endPos)
 {
-    if (((currBB == whiteBB ? whiteKnightBB : blackKnightBB) & endPos) == 0)
+    if ((Knight::getMoves().at(startPos) & (baseBit << endPos)) == 0)
     {
         std::cout << "Illegal knight move" << std::endl;
         return false;
     }
 
-    movePieceOnBB(startPos, endPos, (currBB == whiteBB ? whiteKnightBB : blackKnightBB));
+    movePieceOnBB(startPos, endPos, (*currBB == whiteBB ? whiteKnightBB : blackKnightBB));
 
     return true;
 }
@@ -278,13 +277,15 @@ bool Board::moveKnightIfLegal(std::uint64_t startPos, std::uint64_t endPos)
 bool Board::moveBishopIfLegal(std::uint64_t startPos, std::uint64_t endPos)
 {
     std::uint64_t posDiff = endPos > startPos ? endPos - startPos : startPos - endPos;
-    if (posDiff % 7 != 0 || posDiff % 9 != 0)
+    if ((Bishop::getMoves().at(startPos) & (baseBit << endPos)) == 0)
     {
         std::cout << "Illegal bishop move" << std::endl;
         return false;
     }
 
-    movePieceOnBB(startPos, endPos, currBB == whiteBB ? whiteBishopBB : blackBishopBB);
+    // TODO: check no pieces between start & end pos
+
+    movePieceOnBB(startPos, endPos, *currBB == whiteBB ? whiteBishopBB : blackBishopBB);
 }
 
 bool Board::moveQueenIfLegal(std::uint64_t startPos, std::uint64_t endPos)
