@@ -210,17 +210,12 @@ void Board::movePieceOnBB(const std::uint64_t startPos, const std::uint64_t endP
 
 bool Board::movePawnIfLegal(std::uint64_t startPos, std::uint64_t endPos)
 {
-    std::uint64_t posDiff = (endPos - startPos) * ((*currBB == blackBB) ? -1 : 1);
-    // TODO: MAKE USE OF MOVE BIT BOARDS, TOO MANY OPS TAKING PLACE HERE
+    std::uint64_t posDiff = endPos > startPos ? endPos - startPos : startPos - endPos;
 
-    if (posDiff == 16 && startPos >> 3 != 1 && startPos >> 3 != 6)
+    // Pawn bitboards are only 48 in size, two rows are never used so they are ommited
+    if (((*currBB == whiteBB ? Pawn::getWhiteMoves().at(startPos - 8) : Pawn::getBlackMoves().at(startPos - 8)) & (baseBit << endPos) == 0))
     {
-        std::cout << "Cannot move two squares forward" << std::endl;
-        return false;
-    }
-    else if ((posDiff < 7 || posDiff > 9) && posDiff != 16)
-    {
-        std::cout << "Pawn move was illegal" << std::endl;
+        std::cout << "Illegal pawn move" << std::endl;
         return false;
     }
     else if ((posDiff == 7 || posDiff == 9) && ((*currBB == whiteBB ? blackBB : whiteBB) & (baseBit << endPos)) == 0)
@@ -228,6 +223,8 @@ bool Board::movePawnIfLegal(std::uint64_t startPos, std::uint64_t endPos)
         std::cout << "No piece to capture" << std::endl;
         return false;
     }
+
+    // Must check for promotion
 
     movePieceOnBB(startPos, endPos, *currBB == whiteBB ? whitePawnBB : blackPawnBB);
 

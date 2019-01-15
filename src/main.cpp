@@ -8,8 +8,19 @@
 
 #include <iostream>
 
+void initBitBoards()
+{
+    Pawn::initialize();
+    Rook::initialize();
+    Knight::initialize();
+    Bishop::initialize();
+    Queen::initialize();
+    King::initialize();
+}
+
 int main()
 {
+    initBitBoards();
 
     Board b;
     while (true)
