@@ -18,6 +18,10 @@ std::array<std::uint64_t, 48> Pawn::generateMoves(bool white)
     for (std::uint64_t i = 0; i < 48; ++i)
     {
         moves.at(i) = baseBit << (i + (white ? 16 : 0));
+        if (i % 8 != 0)
+            moves.at(i) += baseBit << (i + (white ? 15 : -1));
+        if (i % 8 != 7)
+            moves.at(i) += baseBit << (i + (white ? 17 : 1));
         if ((i < 8 && white) || (i >= 40 && !white))
             moves.at(i) += baseBit << (white ? i + 24 : i - 8);
     }

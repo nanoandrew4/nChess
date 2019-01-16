@@ -20,8 +20,15 @@ bool UCIParser::parse(Board &board, std::string moveStr)
 
     std::uint64_t startPos = (7 - (moveStr[0] - 97)) + (8 * (56 - moveStr[1]));
     std::uint64_t endPos = (7 - (moveStr[2] - 97)) + (8 * (56 - moveStr[3]));
+    char promotionPiece = ' ';
+    if (moveStr.length() == 5)
+    {
+        promotionPiece = moveStr[4];
+        if (promotionPiece < 97)
+            promotionPiece += 32; // Make uppercase
+    }
 
-    board.makeMove(startPos, endPos);
+    board.makeMove(startPos, endPos, promotionPiece);
     return true;
 }
 

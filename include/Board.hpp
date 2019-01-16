@@ -23,7 +23,7 @@ public:
   static void visDebug(std::uint64_t board);
   void displayBoard();
 
-  bool makeMove(const std::uint64_t startPos, const std::uint64_t endPos);
+  bool makeMove(const std::uint64_t startPos, const std::uint64_t endPos, const char promotionPiece);
 
   int getCurrentTurn() { return currentTurn; }
 
@@ -31,7 +31,7 @@ private:
   /* 
    * All positions are little-endian. These values set the inital positions for the bit boards
    */
-  std::uint64_t globalBB = 0xffff00000000ffff;
+  std::uint64_t globalBB = 0xffff00000000ffff; // Might not be that useful... Consider removing in favor or oring color BBs
 
   std::uint64_t whiteBB = 0x000000000000ffff;
   std::uint64_t blackBB = 0xffff000000000000;
@@ -62,6 +62,7 @@ private:
   static void loadPiecesToVisBoard(std::vector<std::string> &board, const std::uint64_t bitBoard, const std::string displayValue);
 
   static std::vector<std::uint64_t> getSetBits(const std::uint64_t val);
+  void promotePawn(char promotionPiece, std::uint64_t pos);
   bool removeCapturedPiece(const std::uint64_t piecePos);
 
   void endTurn();
