@@ -47,43 +47,60 @@ void Board::visDebug(std::uint64_t board)
 
 void Board::displayBoard()
 {
-    std::vector<std::string> board(64, "  ");
+    std::vector<std::string> board(64 * 4, "  ");
 
-    loadPiecesToVisBoard(board, whitePawnBB, "wP");
-    loadPiecesToVisBoard(board, whiteRookBB, "wR");
-    loadPiecesToVisBoard(board, whiteKnightBB, "wN");
-    loadPiecesToVisBoard(board, whiteBishopBB, "wB");
-    loadPiecesToVisBoard(board, whiteQueenBB, "wQ");
-    loadPiecesToVisBoard(board, whiteKingBB, "wK");
+    loadPiecesToVisBoard(board, whitePawnBB, 0, "wP");
+    loadPiecesToVisBoard(board, whiteRookBB, 0, "wR");
+    loadPiecesToVisBoard(board, whiteKnightBB, 0, "wN");
+    loadPiecesToVisBoard(board, whiteBishopBB, 0, "wB");
+    loadPiecesToVisBoard(board, whiteQueenBB, 0, "wQ");
+    loadPiecesToVisBoard(board, whiteKingBB, 0, "wK");
 
-    loadPiecesToVisBoard(board, blackPawnBB, "bP");
-    loadPiecesToVisBoard(board, blackRookBB, "bR");
-    loadPiecesToVisBoard(board, blackKnightBB, "bN");
-    loadPiecesToVisBoard(board, blackBishopBB, "bB");
-    loadPiecesToVisBoard(board, blackQueenBB, "bQ");
-    loadPiecesToVisBoard(board, blackKingBB, "bK");
+    loadPiecesToVisBoard(board, blackPawnBB, 0, "bP");
+    loadPiecesToVisBoard(board, blackRookBB, 0, "bR");
+    loadPiecesToVisBoard(board, blackKnightBB, 0, "bN");
+    loadPiecesToVisBoard(board, blackBishopBB, 0, "bB");
+    loadPiecesToVisBoard(board, blackQueenBB, 0, "bQ");
+    loadPiecesToVisBoard(board, blackKingBB, 0, "bK");
 
-    for (int i = 0; i < 64; ++i)
+    loadPiecesToVisBoard(board, globalBB, 64, "gP");
+    loadPiecesToVisBoard(board, whiteBB, 128, "ww");
+    loadPiecesToVisBoard(board, blackBB, 192, "bb");
+
+    for (int i = 0; i < 8; ++i)
     {
-        if (i % 8 == 0)
-        {
-            if (i != 0)
-                std::cout << std::endl;
-            std::cout << (i / 8) + 1 << ' ';
-        }
-        std::cout << board.at(63 - i);
+        if (i != 0)
+            std::cout << std::endl;
+        std::cout << i + 1 << ' ';
+
+        for (int j = 0; j < 8; ++j)
+            std::cout << board.at(63 - ((i * 8) + j));
+        std::cout << "    ";
+        for (int j = 0; j < 8; ++j)
+            std::cout << board.at(127 - ((i * 8) + j));
+        std::cout << "    ";
+        for (int j = 0; j < 8; ++j)
+            std::cout << board.at(191 - ((i * 8) + j));
+        std::cout << "    ";
+        for (int j = 0; j < 8; ++j)
+            std::cout << board.at(255 - ((i * 8) + j));
     }
 
+    std::string boardLetters = "a b c d e f g h";
     std::cout << std::endl
-              << "   a b c d e f g h" << std::endl
+              << "   ";
+    for (int i = 0; i < 4; ++i)
+        std::cout << boardLetters << "     ";
+    std::cout << std::endl
               << std::endl;
 }
 
-void Board::loadPiecesToVisBoard(std::vector<std::string> &board, const std::uint64_t bitBoard, const std::string displayValue)
+void Board::loadPiecesToVisBoard(std::vector<std::string> &board, const std::uint64_t bitBoard, const std::uint64_t offset,
+                                 const std::string displayValue)
 {
     std::vector<std::uint64_t> pieces = getSetBits(bitBoard);
     for (std::uint64_t piece : pieces)
-        board.at(piece) = displayValue;
+        board.at(piece + offset) = displayValue;
 }
 
 std::vector<std::uint64_t> Board::getSetBits(std::uint64_t val)

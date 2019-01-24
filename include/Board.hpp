@@ -59,7 +59,8 @@ private:
 
   void clone(const Board *src, Board *dest);
 
-  static void loadPiecesToVisBoard(std::vector<std::string> &board, const std::uint64_t bitBoard, const std::string displayValue);
+  static void loadPiecesToVisBoard(std::vector<std::string> &board, const std::uint64_t bitBoard, const std::uint64_t offset, 
+                                   const std::string  displayValue);
 
   static std::vector<std::uint64_t> getSetBits(const std::uint64_t val);
   void promotePawn(char promotionPiece, std::uint64_t pos);
