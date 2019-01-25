@@ -24,8 +24,8 @@ bool UCIParser::parse(Board &board, std::string moveStr)
     if (moveStr.length() == 5)
     {
         promotionPiece = moveStr[4];
-        if (promotionPiece < 97)
-            promotionPiece += 32; // Make uppercase
+        if (promotionPiece >= 97)
+            promotionPiece -= 32; // Make uppercase
     }
 
     board.makeMove(startPos, endPos, promotionPiece);

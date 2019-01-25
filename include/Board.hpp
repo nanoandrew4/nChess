@@ -63,7 +63,7 @@ private:
                                    const std::string  displayValue);
 
   static std::vector<std::uint64_t> getSetBits(const std::uint64_t val);
-  void promotePawn(char promotionPiece, std::uint64_t pos);
+  bool promotePawn(char promotionPiece, std::uint64_t pos);
   bool removeCapturedPiece(const std::uint64_t piecePos);
 
   void endTurn();

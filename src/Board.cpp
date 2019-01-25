@@ -112,7 +112,7 @@ std::vector<std::uint64_t> Board::getSetBits(std::uint64_t val)
     return setBits;
 }
 
-void Board::promotePawn(char promotionPiece, std::uint64_t pos)
+bool Board::promotePawn(char promotionPiece, std::uint64_t pos)
 {
     (*currBB == whiteBB ? whitePawnBB : blackPawnBB) -= (baseBit << pos);
 
@@ -124,6 +124,9 @@ void Board::promotePawn(char promotionPiece, std::uint64_t pos)
         (*currBB == whiteBB ? whiteKnightBB : blackKnightBB) += (baseBit << pos);
     else if (promotionPiece == 'B')
         (*currBB == whiteBB ? whiteBishopBB : blackBishopBB) += (baseBit << pos);
+    else
+        return false;
+    return true;
 }
 
 bool Board::removeCapturedPiece(std::uint64_t piecePos)
@@ -187,7 +190,12 @@ bool Board::makeMove(const std::uint64_t startPos, const std::uint64_t endPos, c
     {
         legal = movePawnIfLegal(startPos, endPos);
         if (legal && (endPos >> 3 == 7 || endPos >> 3 == 0))
-            promotePawn(promotionPiece, endPos);
+            if (!promotePawn(promotionPiece, endPos))
+            {
+                std::cout << "No promotion piece selected" << std::endl;
+                undoMove();
+                return false;
+            }
     }
     else if ((whiteRookBB & startPosBit) != 0 || (blackRookBB & startPosBit) != 0)
         legal = moveRookIfLegal(startPos, endPos);
@@ -208,17 +216,19 @@ bool Board::makeMove(const std::uint64_t startPos, const std::uint64_t endPos, c
     if (!legal)
         return false;
 
+    legal = true; // Reset to check legality of piece capture
     if (((*currBB == whiteBB ? blackBB : whiteBB) & (baseBit << endPos)) != 0)
-        return removeCapturedPiece(endPos);
+        legal = removeCapturedPiece(endPos);
 
-    endTurn();
+    if (legal)
+        endTurn();
     return true;
 }
 
 void Board::endTurn()
 {
+    ++currentTurn; // Turn changed before saving board, so that if move is undone the turn is given to the right player
     boardHistory.push_back(Board(this)); // Copies the board into a vector, so that the state can be restored if needed
-    ++currentTurn;
     currBB = &((currentTurn & 1) == 0 ? whiteBB : blackBB);
 }
 
@@ -253,7 +263,7 @@ bool Board::movePawnIfLegal(std::uint64_t startPos, std::uint64_t endPos)
         std::cout << "Illegal pawn move" << std::endl;
         return false;
     }
-    else if (posDiff == 8 && (globalBB & (baseBit << endPos) != 0))
+    else if (posDiff == 8 && (globalBB & (baseBit << endPos)) != 0)
     {
         std::cout << "Attempting to move pawn atop another piece while moving vertically" << std::endl;
         return false;
