@@ -248,9 +248,10 @@ void Board::undoMove()
 
 void Board::movePieceOnBB(const std::uint64_t startPos, const std::uint64_t endPos, std::uint64_t &pieceBB)
 {
-    *currBB += ((baseBit << endPos) - (baseBit << startPos));
-    pieceBB += ((baseBit << endPos) - (baseBit << startPos));
-    globalBB += ((baseBit << endPos) - (baseBit << startPos));
+    const std::uint64_t movePieceOp = ((baseBit << endPos) - (baseBit << startPos));
+    *currBB += movePieceOp;
+    pieceBB += movePieceOp;
+    globalBB += movePieceOp;
 }
 
 bool Board::movePawnIfLegal(std::uint64_t startPos, std::uint64_t endPos)
@@ -287,7 +288,7 @@ bool Board::moveRookIfLegal(std::uint64_t startPos, std::uint64_t endPos)
         return false;
     }
 
-    int step = ((endPos - startPos) % 8 == 0) ? (startPos < endPos ? 8 : -8) : (startPos < endPos ? 1 : -1);
+    const int step = ((endPos - startPos) % 8 == 0) ? (startPos < endPos ? 8 : -8) : (startPos < endPos ? 1 : -1);
     for (std::uint64_t pos = startPos + step; pos != endPos; pos += step)
     {
         if ((globalBB & (baseBit << pos)) != 0)
@@ -317,14 +318,25 @@ bool Board::moveKnightIfLegal(std::uint64_t startPos, std::uint64_t endPos)
 
 bool Board::moveBishopIfLegal(std::uint64_t startPos, std::uint64_t endPos)
 {
-    std::uint64_t posDiff = endPos > startPos ? endPos - startPos : startPos - endPos;
+    const std::uint64_t posDiff = endPos > startPos ? endPos - startPos : startPos - endPos;
     if ((Bishop::getMoves().at(startPos) & (baseBit << endPos)) == 0)
     {
         std::cout << "Illegal bishop move" << std::endl;
         return false;
     }
 
-    // TODO: check no pieces between start & end pos
+    int step = posDiff % 7 == 0 ? 7 : 9;
+    if (endPos < startPos)
+        step = ~step;
+
+    for (std::uint64_t i = startPos + step; i != endPos; i += step)
+    {
+        if ((globalBB & (baseBit << i)) != 0)
+        {
+            std::cout << "Illegal bishop move, there is a piece between the starting and ending position" << std::endl;
+            return false;
+        }
+    }
 
     movePieceOnBB(startPos, endPos, *currBB == whiteBB ? whiteBishopBB : blackBishopBB);
 
