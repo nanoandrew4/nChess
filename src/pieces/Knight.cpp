@@ -9,10 +9,10 @@ void Knight::initialize() {
 
 std::array<std::uint64_t, 64> Knight::generateMoves()
 {
-    std::array<std::uint64_t, 64> moves;
+    std::array<std::uint64_t, 64> moves{};
     std::uint64_t baseBit = 1;
 
-    for (int i = 0; i < 64; ++i)
+    for (unsigned long i = 0; i < 64; ++i)
     {
         std::uint64_t move = 0;
         if (i < 48 && i % 8 >= 1) // Up 2, right 1
@@ -38,7 +38,7 @@ std::array<std::uint64_t, 64> Knight::generateMoves()
     return moves;
 }
 
-void Knight::visDebug(int pos)
+void Knight::visDebug(unsigned long pos)
 {
     Board::visDebug(moves.at(pos));
 }

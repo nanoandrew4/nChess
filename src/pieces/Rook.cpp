@@ -8,17 +8,17 @@ void Rook::initialize () {
 }
 
 std::array<std::uint64_t, 64> Rook::generateMoves() {
-    std::array<std::uint64_t, 64> moves;
+    std::array<std::uint64_t, 64> moves{};
     std::uint64_t baseBit = 1;
 
-    for (int i = 0; i < 64; ++i) {
+    for (unsigned long i = 0; i < 64; ++i) {
         // Horizontal moves
         std::uint64_t move = 0;
-        for (int j = i + (7 - (i % 8)); j >= i - (i % 8); --j)
+        for (unsigned long j = i + (7 - (i % 8)); j >= i - (i % 8); --j)
             if (j != i)
                 move += baseBit << j;
         // Vertical moves
-        for (int j = i % 8; j < 64; j += 8)
+        for (unsigned long j = i % 8; j < 64; j += 8)
             if (j != i)
                 move += baseBit << j;
         moves.at(i) = move;
@@ -27,7 +27,7 @@ std::array<std::uint64_t, 64> Rook::generateMoves() {
     return moves;
 }
 
-void Rook::visDebug(int pos) {
+void Rook::visDebug(unsigned long pos) {
     Board::visDebug(moves.at(pos));
 }
 

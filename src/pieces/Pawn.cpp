@@ -13,7 +13,7 @@ void Pawn::initialize()
 std::array<std::uint64_t, 48> Pawn::generateMoves(bool white)
 {
     std::uint64_t baseBit = 1; // Will only be bitshifted once
-    std::array<std::uint64_t, 48> moves;
+    std::array<std::uint64_t, 48> moves{};
 
     for (std::uint64_t i = 0; i < 48; ++i)
     {
