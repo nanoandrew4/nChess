@@ -1,7 +1,6 @@
 #include "Board.hpp"
 
 #include <bitset>
-#include <Board.hpp>
 
 
 Board::Board(const Board *b) {
@@ -43,7 +42,7 @@ void Board::visDebug(std::uint64_t board) {
 	          << std::endl;
 }
 
-void Board::displayBoard() {
+void Board::displayBoard() const {
 	std::vector<std::string> board(64 * 4, "  ");
 
 	loadPiecesToVisBoard(board, whitePawnBB, 0, "wP");
@@ -99,10 +98,10 @@ Board::loadPiecesToVisBoard(std::vector<std::string> &board, const std::uint64_t
 		board.at(piece + offset) = displayValue;
 }
 
-std::vector<std::uint64_t> Board::getSetBits(std::uint64_t val) {
+std::vector<std::uint64_t> Board::getSetBits(const std::uint64_t bb) {
 	std::vector<std::uint64_t> setBits;
 	for (std::uint64_t i = 0; i < 64; ++i)
-		if ((val & (baseBit << i)) != 0)
+		if ((bb & (baseBit << i)) != 0)
 			setBits.push_back(i);
 	return setBits;
 }

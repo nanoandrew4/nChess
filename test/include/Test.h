@@ -25,8 +25,11 @@ public:
 	static void startTests() {Test::testing = true;}
 	static void stopTests();
 	virtual void run() final;
+
+	static void logTestFailure(const TestFailData &failData) { testFailures.emplace_back(failData); }
+
 private:
-	virtual bool test() = 0;
+	virtual void test() = 0;
 
 	static bool testing;
 	static std::vector<TestFailData> testFailures;

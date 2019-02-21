@@ -1,6 +1,7 @@
 #include "../include/Test.h"
 
 bool Test::testing = false;
+std::vector<TestFailData> Test::testFailures;
 
 void Test::run() {
 	if (!testing)
@@ -18,13 +19,14 @@ void printCharNumOfTimes(char charToPrint, unsigned long numOfTimes, bool newlin
 void Test::stopTests() {
 	Test::testing = false;
 
-	if (testFailures.empty()) {
+	if (Test::testFailures.empty()) {
 		std::cout << "Tests completed without error" << std::endl;
 		std::cout << "No error reports will be generated" << std::endl;
 	} else {
 		printCharNumOfTimes('+', 40, true);
-		std::cout << testFailures.size() << " tests failed, error reports will be displayed for each" << std::endl;
-		for (const TestFailData &data : testFailures) {
+		std::cout << Test::testFailures.size() << " tests failed, error reports will be displayed for each"
+		          << std::endl;
+		for (const TestFailData &data : Test::testFailures) {
 			printCharNumOfTimes('~', 40, true);
 			std::cout << "Source: " << data.getSource() << std::endl;
 			std::cout << "Message: " << data.getMessage() << std::endl;

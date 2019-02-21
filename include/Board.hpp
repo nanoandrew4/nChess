@@ -23,11 +23,15 @@ public:
 
 	static void visDebug(std::uint64_t board);
 
-	void displayBoard();
+	void displayBoard() const;
 
 	bool makeMove(std::uint64_t startPos, std::uint64_t endPos, char promotionPiece);
 
-	unsigned long getCurrentTurn() { return currentTurn; }
+	unsigned long getCurrentTurn() const { return currentTurn; }
+
+	static std::vector<std::uint64_t> getSetBits(std::uint64_t bb);
+
+	std::uint64_t getGlobalBB() const { return globalBB; }
 
 private:
 	/*
@@ -61,10 +65,8 @@ private:
 
 	void clone(const Board *src, Board *dest);
 
-	static void
-	loadPiecesToVisBoard(std::vector<std::string> &board, std::uint64_t bitBoard, std::uint64_t offset,std::string displayValue);
-
-	static std::vector<std::uint64_t> getSetBits(std::uint64_t val);
+	static void loadPiecesToVisBoard(std::vector<std::string> &board, std::uint64_t bitBoard, std::uint64_t offset,
+	                                 std::string displayValue);
 
 	bool promotePawn(char promotionPiece, std::uint64_t pos);
 
@@ -73,8 +75,6 @@ private:
 	void endTurn();
 
 	void undoMove();
-
-	bool isLeavingKingInCheck();
 
 	bool validDiagonalMove(std::uint64_t startPos, std::uint64_t endPos);
 
