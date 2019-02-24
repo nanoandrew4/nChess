@@ -1,16 +1,10 @@
 #pragma once
 
 #include <vector>
+#include <array>
 #include <cstdint>
 #include <string>
 #include <iostream>
-
-#include "pieces/Rook.hpp"
-#include "pieces/Knight.hpp"
-#include "pieces/Pawn.hpp"
-#include "pieces/Bishop.hpp"
-#include "pieces/Queen.hpp"
-#include "pieces/King.hpp"
 
 class Board {
 
@@ -24,6 +18,8 @@ public:
 	static void visDebug(std::uint64_t board);
 
 	void displayBoard() const;
+
+	std::array<std::uint64_t, 2> decodeUciMove(const std::string &uciMove) const;
 
 	bool makeMove(std::uint64_t startPos, std::uint64_t endPos, char promotionPiece);
 

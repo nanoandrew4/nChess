@@ -2,6 +2,13 @@
 
 #include <bitset>
 
+#include "pieces/Rook.hpp"
+#include "pieces/Knight.hpp"
+#include "pieces/Pawn.hpp"
+#include "pieces/Bishop.hpp"
+#include "pieces/Queen.hpp"
+#include "pieces/King.hpp"
+
 
 Board::Board(const Board *b) {
 	clone(b, this);
@@ -150,6 +157,52 @@ bool Board::removeCapturedPiece(std::uint64_t piecePos) {
 	(*currBB == whiteBB ? blackBB : whiteBB) -= bitPos;
 	globalBB -= bitPos;
 	return true;
+}
+
+std::array<std::uint64_t, 2> Board::decodeUciMove(const std::string &uciMove) const {
+	std::array<std::uint64_t, 2> move{};
+	std::uint64_t pieceBB;
+	std::array<std::uint64_t, 64> legalityBB{};
+	if (uciMove[0] == 'R') {
+		pieceBB = ((currentTurn & 1) == 0 ? whiteRookBB : blackRookBB);
+		legalityBB = Rook::getMoves();
+	} else if (uciMove[0] == 'K') {
+		pieceBB = ((currentTurn & 1) == 0 ? whiteKnightBB : blackKnightBB);
+		legalityBB = Knight::getMoves();
+	} else if (uciMove[0] == 'B') {
+		pieceBB = ((currentTurn & 1) == 0 ? whiteBishopBB : blackBishopBB);
+		legalityBB = Bishop::getMoves();
+	} else if (uciMove[0] == 'Q') {
+		pieceBB = ((currentTurn & 1) == 0 ? whiteQueenBB : blackQueenBB);
+		legalityBB = Queen::getMoves();
+	} else if (uciMove[0] == 'K') {
+		pieceBB = ((currentTurn & 1) == 0 ? whiteKingBB : blackKingBB);
+		legalityBB = King::getMoves();
+	} else {
+		std::cout << "Error decoding move: " << uciMove << std::endl;
+		return move;
+	}
+
+	move.at(1) = ((7 - (uciMove[uciMove.length() - 2] - 97)) + (8 * (56 - uciMove[uciMove.length() - 1])));
+	std::vector<std::uint64_t> setBits = getSetBits(pieceBB);
+
+	std::vector<std::uint64_t>::iterator iterator = setBits.begin();
+	while (iterator != setBits.end()) {
+		if ((legalityBB.at(*iterator) & move.at(1)) == 0 || (uciMove[1] > 97 && *iterator - (uciMove[1] - 97) % 8 != 0)
+		    || (uciMove[1] > 48 && uciMove[1] <= 57 && *iterator - (std::uint64_t) (8 * (uciMove[1] - 49)) > 8))
+			iterator = setBits.erase(iterator);
+		else
+			++iterator;
+	}
+
+	if (setBits.size() == 1)
+		move.at(0) = setBits.at(0);
+	else {
+		std::cout << "Error determining which piece was supposed to move when decoding UCI move: " << uciMove
+		          << std::endl;
+	}
+	// TODO HANDLE PROMOTION
+	return move;
 }
 
 bool Board::makeMove(const std::uint64_t startPos, const std::uint64_t endPos, const char promotionPiece) {
