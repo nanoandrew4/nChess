@@ -14,7 +14,7 @@ std::array<std::uint64_t, 64> Rook::generateMoves() {
     for (unsigned long i = 0; i < 64; ++i) {
         // Horizontal moves
         std::uint64_t move = 0;
-        for (unsigned long j = i + (7 - (i % 8)); j >= i - (i % 8); --j)
+	    for (unsigned long j = i + (7 - (i % 8)); j >= i - (i % 8) && j < 64; --j)
             if (j != i)
                 move += baseBit << j;
         // Vertical moves

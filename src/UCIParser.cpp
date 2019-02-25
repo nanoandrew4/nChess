@@ -18,8 +18,8 @@ bool UCIParser::parse(Board &board, std::string moveStr)
         return false;
     }
 
-    std::uint64_t startPos = (7 - (moveStr[0] - 97)) + (8 * (56 - moveStr[1]));
-    std::uint64_t endPos = (7 - (moveStr[2] - 97)) + (8 * (56 - moveStr[3]));
+    const std::uint64_t startPos = (7 - (moveStr[0] - 97)) + (8 * (56 - moveStr[1]));
+    const std::uint64_t endPos = (7 - (moveStr[2] - 97)) + (8 * (56 - moveStr[3]));
     char promotionPiece = ' ';
     if (moveStr.length() == 5)
     {

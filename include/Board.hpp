@@ -19,8 +19,6 @@ public:
 
 	void displayBoard() const;
 
-	std::array<std::uint64_t, 2> decodeUciMove(const std::string &uciMove) const;
-
 	bool makeMove(std::uint64_t startPos, std::uint64_t endPos, char promotionPiece);
 
 	unsigned long getCurrentTurn() const { return currentTurn; }
@@ -28,6 +26,14 @@ public:
 	static std::vector<std::uint64_t> getSetBits(std::uint64_t bb);
 
 	std::uint64_t getGlobalBB() const { return globalBB; }
+
+	bool hasWhiteWon() { return whiteWins; }
+
+	bool isMatchOver() { return matchOver; }
+
+	void setDebug(bool debug) { Board::debug = debug; }
+
+	bool isDebugEnable() { return debug; }
 
 private:
 	/*
@@ -58,6 +64,11 @@ private:
 	std::uint64_t *currBB = &whiteBB;
 
 	std::vector<Board> boardHistory;
+
+	bool matchOver = false;
+	bool whiteWins = false;
+
+	static bool debug;
 
 	void clone(const Board *src, Board *dest);
 

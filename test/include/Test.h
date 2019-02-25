@@ -28,6 +28,8 @@ public:
 
 	static void logTestFailure(const TestFailData &failData) { testFailures.emplace_back(failData); }
 
+	static unsigned long getNumOfTestFailures() { return testFailures.size(); }
+
 private:
 	virtual void test() = 0;
 

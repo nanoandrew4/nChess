@@ -3,9 +3,17 @@
 
 #include <fstream>
 
+PieceMovesTest::PieceMovesTest() {
+	std::cout << "Please input the path to the UCI pgn file, or enter 'd' to use default: ";
+	std::cin >> pathToTestFile;
+
+	if (pathToTestFile == "d")
+		pathToTestFile = "../KarpovUCIclean.pgn";
+}
+
 void PieceMovesTest::test() {
 	std::ifstream pgnFile;
-	pgnFile.open(pathToTestFile);
+	pgnFile.open(PieceMovesTest::pathToTestFile);
 
 	if (!pgnFile.is_open()) {
 		std::cout << "Error opening test file for test class PieceMovesTest, path to file is invalid or was not set" <<
@@ -13,19 +21,33 @@ void PieceMovesTest::test() {
 		return;
 	}
 
-	std::string str;
-	bool parsingMove = false;
-	while (pgnFile >> str) {
-		std::size_t periodPos = str.find('.');
-		if (periodPos != std::string::npos)
+	std::string line;
+	const std::string delimiter = " ";
+	std::size_t pos = 0;
 
+	while (std::getline(pgnFile, line)) {
+		while ((pos = line.find(delimiter)) != std::string::npos) {
+			makeMoveAndCheck(line.substr(0, pos));
+			line.erase(0, pos + delimiter.length());
+		}
+		board = Board();
 	}
 }
 
-void PieceMovesTest::makeMoveAndCheck(const std::uint64_t startPos, const std::uint64_t endPos,
-                                      const char promotionPiece, const bool capture) {
+void PieceMovesTest::makeMoveAndCheck(const std::string &move) {
 	const std::vector<std::uint64_t> setBitsBeforeMove = Board::getSetBits(board.getGlobalBB());
-	bool movementSuccessful = board.makeMove(startPos, endPos, promotionPiece);
+
+	const std::uint64_t startPos = (7 - (move[0] - 97)) + (8 * (56 - move[1]));
+	const std::uint64_t endPos = (7 - (move[2] - 97)) + (8 * (56 - move[3]));
+	const bool capture = (((std::uint64_t) 1 << endPos) & board.getGlobalBB()) != 0;
+	char promotionPiece = ' ';
+	if (move.length() == 5) {
+		promotionPiece = move[4];
+		if (promotionPiece >= 97)
+			promotionPiece -= 32; // Make uppercase
+	}
+
+	const bool movementSuccessful = UCIParser::parse(board, move);
 
 	const std::vector<std::uint64_t> setBits = Board::getSetBits(board.getGlobalBB());
 	bool startPosUnset = true, endPosSet = false;
@@ -36,6 +58,7 @@ void PieceMovesTest::makeMoveAndCheck(const std::uint64_t startPos, const std::u
 			endPosSet = true;
 	}
 
+	const unsigned long prevSize = getNumOfTestFailures();
 	if (!movementSuccessful)
 		logTestFailure(TestFailData("PieceMovesTest", genFailedToMakeMoveErrorMessage()));
 	if (!startPosUnset)
@@ -46,7 +69,13 @@ void PieceMovesTest::makeMoveAndCheck(const std::uint64_t startPos, const std::u
 		logTestFailure(TestFailData("PieceMovesTest", genFailedToRemoveCapturedPieceErrorMessage()));
 	if (UCIParser::isPromotionPiece(promotionPiece) && setBitsBeforeMove.size() + 1 != setBits.size())
 		logTestFailure(TestFailData("PieceMovesTest", genFailedToPromoteErrorMessage()));
-	// Checkmate test
+
+	if (getNumOfTestFailures() != prevSize) {
+		std::cout << "The current test failed... The following move was attempted on the current board: " << move <<
+		          std::endl;
+		board.displayBoard();
+		std::cin.get();
+	}
 
 	moveNumber++;
 }

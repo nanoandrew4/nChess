@@ -7,16 +7,16 @@
 
 class PieceMovesTest : public Test {
 public:
-	static void setTestFile(const std::string &pathToFile) { PieceMovesTest::pathToTestFile = pathToFile; };
+	explicit PieceMovesTest();
 
 private:
 	Board board;
 	unsigned long moveNumber = 0;
-	static std::string pathToTestFile;
+	std::string pathToTestFile;
 
 	void test() override;
 
-	void makeMoveAndCheck(std::uint64_t startPos, std::uint64_t endPos, char promotionPiece, bool capture);
+	void makeMoveAndCheck(const std::string &move);
 
 	std::string genFailedToRemoveErrorMessage() const;
 
