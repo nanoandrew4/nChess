@@ -37,8 +37,8 @@ void PieceMovesTest::test() {
 void PieceMovesTest::makeMoveAndCheck(const std::string &move) {
 	const std::vector<std::uint64_t> setBitsBeforeMove = Board::getSetBits(board.getGlobalBB());
 
-	const std::uint64_t startPos = (7 - (move[0] - 97)) + (8 * (56 - move[1]));
-	const std::uint64_t endPos = (7 - (move[2] - 97)) + (8 * (56 - move[3]));
+	const std::uint64_t startPos = (7 - (move[0] - 97)) + (8 * (move[1] - 49));
+	const std::uint64_t endPos = (7 - (move[2] - 97)) + (8 * (move[3] - 49));
 	const bool capture = (((std::uint64_t) 1 << endPos) & board.getGlobalBB()) != 0;
 	char promotionPiece = ' ';
 	if (move.length() == 5) {
@@ -74,6 +74,7 @@ void PieceMovesTest::makeMoveAndCheck(const std::string &move) {
 		std::cout << "The current test failed... The following move was attempted on the current board: " << move <<
 		          std::endl;
 		board.displayBoard();
+		std::cin.get();
 		std::cin.get();
 	}
 

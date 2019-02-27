@@ -129,7 +129,8 @@ bool Board::promotePawn(char promotionPiece, std::uint64_t pos) {
 }
 
 bool Board::removeCapturedPiece(std::uint64_t piecePos) {
-	std::cout << "Removing captured piece" << std::endl;
+	if (debug)
+		std::cout << "Removing captured piece" << std::endl;
 	std::uint64_t bitPos = (baseBit << piecePos);
 
 	if ((bitPos & (*currBB == whiteBB ? blackPawnBB : whitePawnBB)) != 0)
@@ -293,11 +294,12 @@ bool Board::moveKnightIfLegal(std::uint64_t startPos, std::uint64_t endPos) {
 bool Board::validDiagonalMove(std::uint64_t startPos, std::uint64_t endPos) {
 	int step = (endPos > startPos ? endPos - startPos : startPos - endPos) % 7 == 0 ? 7 : 9;
 	if (endPos < startPos)
-		step = ~step;
+		step = ~step + 1;
 
 	for (std::uint64_t i = startPos + step; i != endPos; i += step) {
 		if ((globalBB & (baseBit << i)) != 0) {
-			std::cout << "Illegal bishop move, there is a piece between the starting and ending position" << std::endl;
+			std::cout << "Illegal diagonal move, there is a piece between the starting and ending position" <<
+			          std::endl;
 			return false;
 		}
 	}
