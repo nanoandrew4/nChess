@@ -1,6 +1,8 @@
 #include "Board.hpp"
 
 #include <bitset>
+#include <pieces/King.hpp>
+
 
 #include "pieces/Rook.hpp"
 #include "pieces/Knight.hpp"
@@ -259,7 +261,7 @@ bool Board::movePawnIfLegal(std::uint64_t startPos, std::uint64_t endPos) {
 	return true;
 }
 
-bool Board::validStraightMove(std::uint64_t startPos, std::uint64_t endPos) {
+bool Board::isValidStraightMove(std::uint64_t startPos, std::uint64_t endPos) {
 	const int step = ((endPos - startPos) % 8 == 0) ? (startPos < endPos ? 8 : -8) : (startPos < endPos ? 1 : -1);
 	for (std::uint64_t pos = startPos + step; pos != endPos; pos += step) {
 		if ((globalBB & (baseBit << pos)) != 0) {
@@ -271,8 +273,12 @@ bool Board::validStraightMove(std::uint64_t startPos, std::uint64_t endPos) {
 }
 
 bool Board::moveRookIfLegal(std::uint64_t startPos, std::uint64_t endPos) {
-	if (((Rook::getMoves().at(startPos)) & (baseBit << endPos)) != 0 && validStraightMove(startPos, endPos)) {
+	if (((Rook::getMoves().at(startPos)) & (baseBit << endPos)) != 0 && isValidStraightMove(startPos, endPos)) {
 		movePieceOnBB(startPos, endPos, (*currBB == whiteBB ? whiteRookBB : blackRookBB));
+
+		bool rookStartPos = startPos == 0 || startPos == 7 || startPos == 54 || startPos == 63;
+		if (((baseBit << startPos) & movedBB == 0) && rookStartPos)
+			movedBB += (baseBit << startPos);
 		return true;
 	} else {
 		std::cout << "Rook is not moving on a file" << std::endl;
@@ -291,7 +297,7 @@ bool Board::moveKnightIfLegal(std::uint64_t startPos, std::uint64_t endPos) {
 	return true;
 }
 
-bool Board::validDiagonalMove(std::uint64_t startPos, std::uint64_t endPos) {
+bool Board::isValidDiagMove(std::uint64_t startPos, std::uint64_t endPos) {
 	int step = (endPos > startPos ? endPos - startPos : startPos - endPos) % 7 == 0 ? 7 : 9;
 	if (endPos < startPos)
 		step = ~step + 1;
@@ -307,7 +313,7 @@ bool Board::validDiagonalMove(std::uint64_t startPos, std::uint64_t endPos) {
 }
 
 bool Board::moveBishopIfLegal(std::uint64_t startPos, std::uint64_t endPos) {
-	if ((Bishop::getMoves().at(startPos) & (baseBit << endPos)) != 0 && validDiagonalMove(startPos, endPos)) {
+	if ((Bishop::getMoves().at(startPos) & (baseBit << endPos)) != 0 && isValidDiagMove(startPos, endPos)) {
 		movePieceOnBB(startPos, endPos, *currBB == whiteBB ? whiteBishopBB : blackBishopBB);
 		return true;
 	} else {
@@ -317,10 +323,11 @@ bool Board::moveBishopIfLegal(std::uint64_t startPos, std::uint64_t endPos) {
 }
 
 bool Board::moveQueenIfLegal(std::uint64_t startPos, std::uint64_t endPos) {
-	bool diagMove = (Bishop::getMoves().at(startPos) & (baseBit << endPos)) != 0;
-	bool straightMove = (Rook::getMoves().at(startPos) & (baseBit << endPos)) != 0;
+	const bool isDiagMove = (Bishop::getMoves().at(startPos) & (baseBit << endPos)) != 0;
+	const bool isStraightMove = (Rook::getMoves().at(startPos) & (baseBit << endPos)) != 0;
 
-	if ((diagMove && validDiagonalMove(startPos, endPos)) || (straightMove && validStraightMove(startPos, endPos))) {
+	if ((isDiagMove && isValidDiagMove(startPos, endPos)) ||
+	    (isStraightMove && isValidStraightMove(startPos, endPos))) {
 		movePieceOnBB(startPos, endPos, *currBB == whiteBB ? whiteQueenBB : blackQueenBB);
 		return true;
 	} else
@@ -329,6 +336,50 @@ bool Board::moveQueenIfLegal(std::uint64_t startPos, std::uint64_t endPos) {
 	return false;
 }
 
+bool Board::canCastle(std::uint64_t startPos, std::uint64_t endPos) {
+	const bool isWhiteTurn = (currentTurn & 1) == 0;
+	const bool isKingSideCastle = startPos - endPos == 2;
+
+	if (((baseBit << startPos) & movedBB) != 0)
+		return false;
+
+	if (isKingSideCastle)
+		return isWhiteTurn ? ((baseBit & movedBB) == 0) : ((baseBit << 56) & movedBB) == 0;
+	else
+		return isWhiteTurn ? ((baseBit << 7) & movedBB) == 0 : ((baseBit << 63) & movedBB) == 0;
+}
+
 bool Board::moveKingIfLegal(std::uint64_t startPos, std::uint64_t endPos) {
-	return false;
+	const bool isWhiteTurn = (currentTurn & 1) == 0;
+	const std::array<std::uint64_t, 64> moves = isWhiteTurn ? King::getWhiteMoves() : King::getBlackMoves();
+	const bool isCastlingMove = (endPos - startPos == 2 || startPos - endPos == 2);
+
+	if ((moves.at(startPos)) & (baseBit << endPos) == 0) {
+		std::cout << "Illegal king move" << std::endl;
+		return false;
+	} else if (isCastlingMove && !canCastle(startPos, endPos)) { // TODO: BAN CASTLE IN CHECK
+		std::cout << "Illegal castling move" << std::endl;
+		return false;
+	}
+
+	// TODO: MOVE INTO CHECK BAN
+	if (isCastlingMove) {
+		const bool isKingSideCastle = startPos - endPos == 2;
+		std::uint64_t rookStartPos, rookEndPos;
+		if (isWhiteTurn == 0) { // is white?
+			rookStartPos = isKingSideCastle ? 0 : 7;
+			rookEndPos = isKingSideCastle ? 3 : 5;
+		} else {
+			rookStartPos = isKingSideCastle ? 56 : 63;
+			rookEndPos = isKingSideCastle ? 59 : 61;
+		}
+		movePieceOnBB(rookStartPos, rookEndPos, isWhiteTurn ? whiteRookBB : blackRookBB);
+	}
+
+	if ((startPos == 3 || startPos == 58) && ((baseBit << startPos) & movedBB) == 0)
+		movedBB += (baseBit << startPos);
+
+	movePieceOnBB(startPos, endPos, (currentTurn & 1) == 0 ? whiteKingBB : blackKingBB);
+
+	return true;
 }

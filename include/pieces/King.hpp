@@ -9,11 +9,16 @@ class King
     ~King() = default;
 
     static void initialize();
-    static std::array<std::uint64_t, 64> generateMoves();
-    static void visDebug(unsigned long pos);
 
-	static std::array<std::uint64_t, 64> getMoves() { return moves; }
+	static std::array<std::uint64_t, 64> generateMoves(bool white);
+
+	static void visDebug(bool white, unsigned long pos);
+
+	static std::array<std::uint64_t, 64> getWhiteMoves() { return whiteMoves; }
+
+	static std::array<std::uint64_t, 64> getBlackMoves() { return blackMoves; }
 
   private:
-    static std::array<std::uint64_t, 64> moves;
+	static std::array<std::uint64_t, 64> whiteMoves;
+	static std::array<std::uint64_t, 64> blackMoves;
 };

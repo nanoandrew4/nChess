@@ -1,16 +1,17 @@
 #include "pieces/King.hpp"
 #include "Board.hpp"
 
-#include <iostream>
 #include <bitset>
 
-std::array<std::uint64_t, 64> King::moves;
+std::array<std::uint64_t, 64> King::whiteMoves;
+std::array<std::uint64_t, 64> King::blackMoves;
 
 void King::initialize() {
-    moves = generateMoves();
+    whiteMoves = generateMoves(true);
+    blackMoves = generateMoves(false);
 }
 
-std::array<std::uint64_t, 64> King::generateMoves() {
+std::array<std::uint64_t, 64> King::generateMoves(bool white) {
     bool canPlaceRight, canPlaceLeft, canPlaceAbove, canPlaceBelow;
     std::array<std::uint64_t, 64> moves{};
     std::uint64_t bitShiftingBaseVal = 1;
@@ -43,9 +44,14 @@ std::array<std::uint64_t, 64> King::generateMoves() {
         moves.at(i) = move;
     }
 
+    if (white)
+        moves.at(3) += (bitShiftingBaseVal << 1L) + (bitShiftingBaseVal << 5L);
+    else
+        moves.at(58) += (bitShiftingBaseVal << 60L) + (bitShiftingBaseVal << 56L);
+
     return moves;
 }
 
-void King::visDebug(unsigned long pos) {
-    Board::visDebug(moves.at(pos));
+void King::visDebug(bool white, unsigned long pos) {
+    Board::visDebug(white ? whiteMoves.at(pos) : blackMoves.at(pos));
 }
