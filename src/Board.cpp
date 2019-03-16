@@ -11,6 +11,10 @@
 
 bool Board::debug = false;
 
+Board::Board() {
+	this->boardHistory.reserve(100);
+}
+
 Board::Board(const Board *b) {
 	clone(b, this);
 }
@@ -35,7 +39,7 @@ void Board::clone(const Board *src, Board *dest) {
 	dest->blackKingBB = src->blackKingBB;
 
 	dest->currentTurn = src->currentTurn;
-	dest->boardHistory = src->boardHistory; // TODO: Check if it copies ref
+	dest->boardHistory = std::vector<Board>(src->boardHistory); // TODO: FULL MEMORY USAGE, NEEDS FIXING
 }
 
 void Board::visDebug(std::uint64_t board) {
@@ -223,6 +227,7 @@ void Board::endTurn() {
 }
 
 void Board::undoMove() {
+	std::cout << "Undoing move" << std::endl;
 	if (!boardHistory.empty()) {
 		Board prevBoardState = boardHistory.back();
 		boardHistory.pop_back();
@@ -277,11 +282,11 @@ bool Board::moveRookIfLegal(std::uint64_t startPos, std::uint64_t endPos) {
 		movePieceOnBB(startPos, endPos, (*currBB == whiteBB ? whiteRookBB : blackRookBB));
 
 		bool rookStartPos = startPos == 0 || startPos == 7 || startPos == 54 || startPos == 63;
-		if (((baseBit << startPos) & movedBB == 0) && rookStartPos)
+		if ((((baseBit << startPos) & movedBB) == 0) && rookStartPos)
 			movedBB += (baseBit << startPos);
 		return true;
 	} else {
-		std::cout << "Rook is not moving on a file" << std::endl;
+		std::cout << "Rook is not moving on a file: " << startPos << " -> " << endPos << std::endl;
 		return false;
 	}
 }
@@ -354,7 +359,7 @@ bool Board::moveKingIfLegal(std::uint64_t startPos, std::uint64_t endPos) {
 	const std::array<std::uint64_t, 64> moves = isWhiteTurn ? King::getWhiteMoves() : King::getBlackMoves();
 	const bool isCastlingMove = (endPos - startPos == 2 || startPos - endPos == 2);
 
-	if ((moves.at(startPos)) & (baseBit << endPos) == 0) {
+	if (((moves.at(startPos)) & (baseBit << endPos)) == 0) {
 		std::cout << "Illegal king move" << std::endl;
 		return false;
 	} else if (isCastlingMove && !canCastle(startPos, endPos)) { // TODO: BAN CASTLE IN CHECK
@@ -366,12 +371,12 @@ bool Board::moveKingIfLegal(std::uint64_t startPos, std::uint64_t endPos) {
 	if (isCastlingMove) {
 		const bool isKingSideCastle = startPos - endPos == 2;
 		std::uint64_t rookStartPos, rookEndPos;
-		if (isWhiteTurn == 0) { // is white?
+		if (isWhiteTurn) {
 			rookStartPos = isKingSideCastle ? 0 : 7;
-			rookEndPos = isKingSideCastle ? 3 : 5;
+			rookEndPos = isKingSideCastle ? 2 : 4;
 		} else {
 			rookStartPos = isKingSideCastle ? 56 : 63;
-			rookEndPos = isKingSideCastle ? 59 : 61;
+			rookEndPos = isKingSideCastle ? 58 : 60;
 		}
 		movePieceOnBB(rookStartPos, rookEndPos, isWhiteTurn ? whiteRookBB : blackRookBB);
 	}

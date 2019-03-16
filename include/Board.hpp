@@ -9,7 +9,7 @@
 class Board {
 
 public:
-	Board() = default;
+	Board();
 
 	explicit Board(const Board *b);
 

@@ -8,7 +8,7 @@ PieceMovesTest::PieceMovesTest() {
 	std::cin >> pathToTestFile;
 
 	if (pathToTestFile == "d")
-		pathToTestFile = "../KarpovUCIclean.pgn";
+		pathToTestFile = "/home/nanoandrew4/CLionProjects/nChess/KarpovUCIclean.pgn";
 }
 
 void PieceMovesTest::test() {
@@ -25,11 +25,35 @@ void PieceMovesTest::test() {
 	const std::string delimiter = " ";
 	std::size_t pos = 0;
 
+	std::cout << "Enter the move number you wish to start from: ";
+	std::cin >> startMove;
+
+	bool stepping = startMove != 0;
+	unsigned long matchNumber = 0;
+	std::string move;
+
 	while (std::getline(pgnFile, line)) {
+		if (matchNumber % 100 == 0)
+			std::cout << "Number of test matches completed: " << matchNumber << std::endl;
+
 		while ((pos = line.find(delimiter)) != std::string::npos) {
-			makeMoveAndCheck(line.substr(0, pos));
+			move = line.substr(0, pos);
+			makeMoveAndCheck(move);
+
+			if (stepping && moveNumber >= startMove) {
+				std::cout << "Move played is: " << move << std::endl;
+				std::cout << "Current move number: " << moveNumber << std::endl;
+				board.displayBoard();
+				std::cin.get();
+				std::cin.get();
+			}
+
+//			if (moveNumber > 20)
+//				return;
+
 			line.erase(0, pos + delimiter.length());
 		}
+		matchNumber++;
 		board = Board();
 	}
 }
@@ -71,8 +95,8 @@ void PieceMovesTest::makeMoveAndCheck(const std::string &move) {
 		logTestFailure(TestFailData("PieceMovesTest", genFailedToPromoteErrorMessage()));
 
 	if (getNumOfTestFailures() != prevSize) {
-		std::cout << "The current test failed... The following move was attempted on the current board: " << move <<
-		          std::endl;
+		std::cout << "The current test failed... The following move was attempted on the current board: " << move
+		          << " and was at move number: " << moveNumber << std::endl;
 		board.displayBoard();
 		std::cin.get();
 		std::cin.get();

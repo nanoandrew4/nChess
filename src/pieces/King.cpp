@@ -47,7 +47,7 @@ std::array<std::uint64_t, 64> King::generateMoves(bool white) {
     if (white)
         moves.at(3) += (bitShiftingBaseVal << 1L) + (bitShiftingBaseVal << 5L);
     else
-        moves.at(58) += (bitShiftingBaseVal << 60L) + (bitShiftingBaseVal << 56L);
+        moves.at(59) += (bitShiftingBaseVal << 61L) + (bitShiftingBaseVal << 57L);
 
     return moves;
 }

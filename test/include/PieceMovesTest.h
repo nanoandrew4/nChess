@@ -12,6 +12,8 @@ public:
 private:
 	Board board;
 	unsigned long moveNumber = 0;
+	unsigned long startMove = 0;
+
 	std::string pathToTestFile;
 
 	void test() override;
