@@ -25,53 +25,47 @@ void PieceMovesTest::test() {
 	const std::string delimiter = " ";
 	std::size_t pos = 0;
 
-	std::cout << "Enter the move number you wish to start from: ";
-	std::cin >> startMove;
+	std::cout << "Enter the match/move number you wish to start from: ";
+	unsigned long startMove = 0, startMatch = 0;
+	std::cin >> startMatch >> startMove;
 
-	bool stepping = startMove != 0;
-	unsigned long matchNumber = 0;
+	bool stepping = startMatch != 0 || startMove != 0;
 	std::string move;
 
 	while (std::getline(pgnFile, line)) {
-		if (matchNumber % 100 == 0)
+		Board board;
+		if (matchNumber % 100 == 0 && matchNumber > 0)
 			std::cout << "Number of test matches completed: " << matchNumber << std::endl;
 
 		while ((pos = line.find(delimiter)) != std::string::npos) {
 			move = line.substr(0, pos);
-			makeMoveAndCheck(move);
+			makeMoveAndCheck(move, board);
 
-			if (stepping && moveNumber >= startMove) {
+			if (stepping && startMatch == matchNumber && moveNumber >= startMove) {
 				std::cout << "Move played is: " << move << std::endl;
-				std::cout << "Current move number: " << moveNumber << std::endl;
+				std::cout << "Current match/move number: " << matchNumber << "/" << moveNumber << std::endl;
 				board.displayBoard();
 				std::cin.get();
 				std::cin.get();
 			}
 
-//			if (moveNumber > 20)
-//				return;
-
 			line.erase(0, pos + delimiter.length());
 		}
+
+		moveNumber = 0;
 		matchNumber++;
-		board = Board();
 	}
 }
 
-void PieceMovesTest::makeMoveAndCheck(const std::string &move) {
-	const std::vector<std::uint64_t> setBitsBeforeMove = Board::getSetBits(board.getGlobalBB());
+void PieceMovesTest::makeMoveAndCheck(const std::string &move, Board &board) {
+	const std::vector<std::uint64_t> setGlobalBitsBeforeMove = Board::getSetBits(board.getGlobalBB());
 
 	const std::uint64_t startPos = (7 - (move[0] - 97)) + (8 * (move[1] - 49));
 	const std::uint64_t endPos = (7 - (move[2] - 97)) + (8 * (move[3] - 49));
 	const bool capture = (((std::uint64_t) 1 << endPos) & board.getGlobalBB()) != 0;
-	char promotionPiece = ' ';
-	if (move.length() == 5) {
-		promotionPiece = move[4];
-		if (promotionPiece >= 97)
-			promotionPiece -= 32; // Make uppercase
-	}
 
 	const bool movementSuccessful = UCIParser::parse(board, move);
+	moveNumber++;
 
 	const std::vector<std::uint64_t> setBits = Board::getSetBits(board.getGlobalBB());
 	bool startPosUnset = true, endPosSet = false;
@@ -89,20 +83,16 @@ void PieceMovesTest::makeMoveAndCheck(const std::string &move) {
 		logTestFailure(TestFailData("PieceMovesTest", genFailedToRemoveErrorMessage()));
 	if (!endPosSet)
 		logTestFailure(TestFailData("PieceMovesTest", genFailedToMoveErrorMessage()));
-	if (capture && setBitsBeforeMove.size() != setBits.size() + 1)
+	if (capture && setGlobalBitsBeforeMove.size() != setBits.size() + 1)
 		logTestFailure(TestFailData("PieceMovesTest", genFailedToRemoveCapturedPieceErrorMessage()));
-	if (UCIParser::isPromotionPiece(promotionPiece) && setBitsBeforeMove.size() + 1 != setBits.size())
-		logTestFailure(TestFailData("PieceMovesTest", genFailedToPromoteErrorMessage()));
 
 	if (getNumOfTestFailures() != prevSize) {
-		std::cout << "The current test failed... The following move was attempted on the current board: " << move
-		          << " and was at move number: " << moveNumber << std::endl;
+		std::cout << "The current test failed... The following move was attempted: " << move
+		          << " and was at match/move number: " << matchNumber << "/" << moveNumber << std::endl;
 		board.displayBoard();
 		std::cin.get();
 		std::cin.get();
 	}
-
-	moveNumber++;
 }
 
 std::string PieceMovesTest::genFailedToRemoveErrorMessage() const {
@@ -115,10 +105,6 @@ std::string PieceMovesTest::genFailedToMoveErrorMessage() const {
 
 std::string PieceMovesTest::genFailedToRemoveCapturedPieceErrorMessage() const {
 	return "Failed to remove captured piece at turn: " + std::to_string(moveNumber);
-}
-
-std::string PieceMovesTest::genFailedToPromoteErrorMessage() const {
-	return "Failed to promote piece at turn: " + std::to_string(moveNumber);
 }
 
 std::string PieceMovesTest::genFailedToMakeMoveErrorMessage() const {

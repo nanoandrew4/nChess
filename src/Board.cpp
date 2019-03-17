@@ -38,8 +38,7 @@ void Board::clone(const Board *src, Board *dest) {
 	dest->blackQueenBB = src->blackQueenBB;
 	dest->blackKingBB = src->blackKingBB;
 
-	dest->currentTurn = src->currentTurn;
-	dest->boardHistory = std::vector<Board>(src->boardHistory); // TODO: FULL MEMORY USAGE, NEEDS FIXING
+//	dest->currentTurn = src->currentTurn;
 }
 
 void Board::visDebug(std::uint64_t board) {
@@ -244,24 +243,40 @@ void Board::movePieceOnBB(const std::uint64_t startPos, const std::uint64_t endP
 	globalBB += movePieceOp;
 }
 
-bool Board::movePawnIfLegal(std::uint64_t startPos, std::uint64_t endPos) {
-	std::uint64_t posDiff = endPos > startPos ? endPos - startPos : startPos - endPos;
+bool Board::enPassant(std::uint64_t endPos) {
+	const bool isWhiteTurn = *currBB == whiteBB;
+	const std::uint64_t potentialEnPassantCapturePos = isWhiteTurn ? endPos - 8u : endPos + 8u;
 
-	// Pawn bitboards are only 48 in size, two rows are never used so they are omitted
-	if (((*currBB == whiteBB ? Pawn::getWhiteMoves().at(startPos) : Pawn::getBlackMoves().at(startPos)) &
+	const std::uint64_t captureBitPos = baseBit << potentialEnPassantCapturePos;
+	if (((isWhiteTurn ? blackPawnBB : whitePawnBB) & captureBitPos) != 0 && (movedBB & captureBitPos) != 0) {
+		removeCapturedPiece(potentialEnPassantCapturePos);
+		return true;
+	}
+
+	return false;
+}
+
+bool Board::movePawnIfLegal(std::uint64_t startPos, std::uint64_t endPos) {
+	const std::uint64_t posDiff = endPos > startPos ? endPos - startPos : startPos - endPos;
+	const bool isWhiteTurn = *currBB == whiteBB;
+
+	if (((isWhiteTurn ? Pawn::getWhiteMoves().at(startPos) : Pawn::getBlackMoves().at(startPos)) &
 	     (baseBit << endPos)) == 0) {
 		std::cout << "Illegal pawn move" << std::endl;
 		return false;
 	} else if (posDiff == 8 && (globalBB & (baseBit << endPos)) != 0) {
 		std::cout << "Attempting to move pawn atop another piece while moving vertically" << std::endl;
 		return false;
-	} else if ((posDiff == 7 || posDiff == 9) &&
-	           ((*currBB == whiteBB ? blackBB : whiteBB) & (baseBit << endPos)) == 0) {
+	} else if ((posDiff == 7 || posDiff == 9) && (((isWhiteTurn ? blackBB : whiteBB) & (baseBit << endPos)) ==
+	                                              0) && (!enPassant(endPos))) {
 		std::cout << "No piece to capture with pawn" << std::endl;
 		return false;
 	}
 
-	movePieceOnBB(startPos, endPos, *currBB == whiteBB ? whitePawnBB : blackPawnBB);
+	movePieceOnBB(startPos, endPos, isWhiteTurn ? whitePawnBB : blackPawnBB);
+
+	if (posDiff == 16 && (((startPos / 8) == 1 && isWhiteTurn) || (startPos / 8 == 6 && !isWhiteTurn)))
+		movedBB += (baseBit << endPos);
 
 	return true;
 }
@@ -303,7 +318,9 @@ bool Board::moveKnightIfLegal(std::uint64_t startPos, std::uint64_t endPos) {
 }
 
 bool Board::isValidDiagMove(std::uint64_t startPos, std::uint64_t endPos) {
-	int step = (endPos > startPos ? endPos - startPos : startPos - endPos) % 7 == 0 ? 7 : 9;
+	const bool isStartXSmallerThanEndX = endPos % 8u > startPos % 8u;
+	int step = ((isStartXSmallerThanEndX && endPos > startPos) || (!isStartXSmallerThanEndX && endPos < startPos)) ? 9
+	                                                                                                               : 7;
 	if (endPos < startPos)
 		step = ~step + 1;
 

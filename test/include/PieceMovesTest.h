@@ -10,23 +10,20 @@ public:
 	explicit PieceMovesTest();
 
 private:
-	Board board;
 	unsigned long moveNumber = 0;
-	unsigned long startMove = 0;
+	unsigned long matchNumber = 0;
 
 	std::string pathToTestFile;
 
 	void test() override;
 
-	void makeMoveAndCheck(const std::string &move);
+	void makeMoveAndCheck(const std::string &move, Board &board);
 
 	std::string genFailedToRemoveErrorMessage() const;
 
 	std::string genFailedToMoveErrorMessage() const;
 
 	std::string genFailedToRemoveCapturedPieceErrorMessage() const;
-
-	std::string genFailedToPromoteErrorMessage() const;
 
 	std::string genFailedToMakeMoveErrorMessage() const;
 };

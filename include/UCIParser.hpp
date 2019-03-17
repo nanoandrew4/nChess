@@ -12,7 +12,8 @@ public:
   ~UCIParser() = default;
 
   static bool parse(Board &board, std::string moveStr);
-  static bool isPromotionPiece(char piece);
+
+	static bool isPromotionPiece(const char piece);
 
 private:
   static bool notRow(char val);

@@ -32,9 +32,8 @@ bool UCIParser::parse(Board &board, std::string moveStr)
     return true;
 }
 
-bool UCIParser::isPromotionPiece(char piece)
-{
-    return piece == 'q' || piece == 'r' || piece == 'b' || piece == 'n';
+bool UCIParser::isPromotionPiece(const char piece) {
+    return piece == 'Q' || piece == 'R' || piece == 'B' || piece == 'N';
 }
 
 bool UCIParser::notColumn(char val)

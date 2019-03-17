@@ -40,7 +40,7 @@ private:
 	 * All positions are little-endian. These values set the initial positions for the bit boards
 	 */
 	std::uint64_t globalBB = 0xffff00000000ffff; // Might not be that useful... Consider removing in favor or orig color BBs
-	std::uint64_t movedBB = 0;
+	std::uint64_t movedBB = 0; // For tracking king/rook moves for castling and pawn moves for en passant
 
 	std::uint64_t whiteBB = 0x000000000000ffff;
 	std::uint64_t blackBB = 0xffff000000000000;
@@ -89,6 +89,8 @@ private:
 	bool isValidStraightMove(std::uint64_t startPos, std::uint64_t endPos);
 
 	bool canCastle(std::uint64_t startPos, std::uint64_t endPos);
+
+	bool enPassant(std::uint64_t endPos);
 
 	bool movePawnIfLegal(std::uint64_t startPos, std::uint64_t endPos);
 
