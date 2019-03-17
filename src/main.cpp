@@ -1,3 +1,4 @@
+#include <cstring>
 #include "pieces/King.hpp"
 #include "pieces/Pawn.hpp"
 #include "pieces/Rook.hpp"
@@ -10,10 +11,7 @@
 
 void playMatch();
 
-void integrityTests();
-
-void initBitBoards()
-{
+void initBitBoards() {
 	Pawn::initialize();
 	Rook::initialize();
 	Knight::initialize();
@@ -22,25 +20,40 @@ void initBitBoards()
 	King::initialize();
 }
 
-int main()
-{
+int main(int argc, char *argv[]) {
 	initBitBoards();
 
+	if (argc < 2) {
+		std::cout << "Missing arguments" << std::endl;
+		return 1;
+	}
 
-	std::cout << "Welcome to nChess!" << std::endl << std::endl;
-	std::cout << "1. Play a match" << std::endl;
-	std::cout << "2. Check engine legality check integrity" << std::endl;
+	if (argc > 1 && strncmp(argv[1], "test", 4) == 0) {
+		unsigned long startMove = 0, startMatch = 0;
+		std::string pathToFile;
+		for (int i = 2; i < argc; i += 2) {
+			const std::string arg = argv[i];
+			if (strncmp(argv[i], "--smove", 7) == 0)
+				startMove = std::stoul(argv[i + 1]);
+			else if (strncmp(argv[i], "--smatch", 8) == 0)
+				startMatch = std::stoul(argv[i + 1]);
+			else if (strncmp(argv[i], "--path", 6) == 0)
+				pathToFile = argv[i + 1];
+		}
 
-	int opt;
-	do {
-		std::cout << ">> ";
-		std::cin >> opt;
-	} while (opt < 1 || opt > 2);
+		Test::startTests();
 
-	if (opt == 1)
+		PieceMovesTest pieceMovesTest;
+		pieceMovesTest.setPathToTestFile(pathToFile);
+		pieceMovesTest.setStartMatch(startMatch);
+		pieceMovesTest.setStartMove(startMove);
+		pieceMovesTest.run();
+
+		Test::stopTests();
+	} else
 		playMatch();
-	else if (opt == 2)
-		integrityTests();
+
+	return 0;
 }
 
 void playMatch() {
@@ -56,13 +69,4 @@ void playMatch() {
 			std::cin >> move;
 		} while (!UCIParser::parse(b, move));
 	}
-}
-
-void integrityTests() {
-	Test::startTests();
-
-	PieceMovesTest pieceMovesTest;
-	pieceMovesTest.run();
-
-	Test::stopTests();
 }

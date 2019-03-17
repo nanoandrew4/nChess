@@ -6,16 +6,25 @@
 #include <string>
 #include <cstdint>
 
-class UCIParser
-{
+class UCIParser {
 public:
-  ~UCIParser() = default;
+	~UCIParser() = default;
 
-  static bool parse(Board &board, std::string moveStr);
+	static bool parse(Board &board, std::string moveStr);
 
-	static bool isPromotionPiece(const char piece);
+	static bool parseAndTime(Board &board, std::string moveStr);
+
+	static bool isPromotionPiece(char piece);
+
+	static double getSecsInBoardClass() { return microSecondInBoard / 1000000.0; }
 
 private:
-  static bool notRow(char val);
-  static bool notColumn(char val);
+	static bool notRow(char val);
+
+	static bool notColumn(char val);
+
+	static bool moveOnBoard(Board &board, std::uint64_t startPos, std::uint64_t endPos,
+	                        char promotionPiece);
+
+	static double microSecondInBoard;
 };

@@ -2,14 +2,7 @@
 #include "../include/PieceMovesTest.h"
 
 #include <fstream>
-
-PieceMovesTest::PieceMovesTest() {
-	std::cout << "Please input the path to the UCI pgn file, or enter 'd' to use default: ";
-	std::cin >> pathToTestFile;
-
-	if (pathToTestFile == "d")
-		pathToTestFile = "/home/nanoandrew4/CLionProjects/nChess/KarpovUCIclean.pgn";
-}
+#include <chrono>
 
 void PieceMovesTest::test() {
 	std::ifstream pgnFile;
@@ -25,21 +18,21 @@ void PieceMovesTest::test() {
 	const std::string delimiter = " ";
 	std::size_t pos = 0;
 
-	std::cout << "Enter the match/move number you wish to start from: ";
-	unsigned long startMove = 0, startMatch = 0;
-	std::cin >> startMatch >> startMove;
-
 	bool stepping = startMatch != 0 || startMove != 0;
 	std::string move;
+	unsigned long totalMoves = 0;
+	double timeInBoardClass = 0;
 
+	std::chrono::steady_clock::time_point start(std::chrono::steady_clock::now());
 	while (std::getline(pgnFile, line)) {
 		Board board;
-		if (matchNumber % 100 == 0 && matchNumber > 0)
-			std::cout << "Number of test matches completed: " << matchNumber << std::endl;
+		if (matchNumber % 10000 == 0 && matchNumber > 0)
+			std::cout << "\rNumber of test matches completed: " << matchNumber << std::flush;
 
 		while ((pos = line.find(delimiter)) != std::string::npos) {
 			move = line.substr(0, pos);
-			makeMoveAndCheck(move, board);
+			const bool moveSuccessful = makeMoveAndCheck(move, board);
+			timeInBoardClass += UCIParser::getSecsInBoardClass();
 
 			if (stepping && startMatch == matchNumber && moveNumber >= startMove) {
 				std::cout << "Move played is: " << move << std::endl;
@@ -49,23 +42,44 @@ void PieceMovesTest::test() {
 				std::cin.get();
 			}
 
+			if (!stepping && !moveSuccessful)
+				break;
+
 			line.erase(0, pos + delimiter.length());
 		}
 
+		totalMoves += moveNumber;
 		moveNumber = 0;
 		matchNumber++;
 	}
+
+	std::chrono::steady_clock::time_point end(std::chrono::steady_clock::now());
+	double runtime = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+
+	std::cout << "\rCompleted testing of " << matchNumber << " matches in " << (int) runtime / 3600 << "h "
+	          << ((int) runtime % 3600) / 60 << "m " << (int) runtime % 60 << "s " << (int) (runtime * 1000.0) % 1000
+	          << "ms"
+	          << std::endl;
+
+	std::cout << "Time spent performing moves in Board class: "
+	          << (int) timeInBoardClass / 3600 << "h " << ((int) timeInBoardClass % 3600) / 60 << "m "
+	          << (int) timeInBoardClass % 60 << "s " << (int) (timeInBoardClass * 1000.0) % 1000 << "ms"
+	          << std::endl;
+
+	std::cout << "Number of moves evaluated: " << totalMoves << std::endl;
+	std::cout << "Avg moves per second: " << totalMoves / timeInBoardClass << std::endl;
+
+	std::cout << std::endl;
 }
 
-void PieceMovesTest::makeMoveAndCheck(const std::string &move, Board &board) {
+bool PieceMovesTest::makeMoveAndCheck(const std::string &move, Board &board) {
 	const std::vector<std::uint64_t> setGlobalBitsBeforeMove = Board::getSetBits(board.getGlobalBB());
 
 	const std::uint64_t startPos = (7 - (move[0] - 97)) + (8 * (move[1] - 49));
 	const std::uint64_t endPos = (7 - (move[2] - 97)) + (8 * (move[3] - 49));
 	const bool capture = (((std::uint64_t) 1 << endPos) & board.getGlobalBB()) != 0;
 
-	const bool movementSuccessful = UCIParser::parse(board, move);
-	moveNumber++;
+	const bool movementSuccessful = UCIParser::parseAndTime(board, move);
 
 	const std::vector<std::uint64_t> setBits = Board::getSetBits(board.getGlobalBB());
 	bool startPosUnset = true, endPosSet = false;
@@ -90,23 +104,28 @@ void PieceMovesTest::makeMoveAndCheck(const std::string &move, Board &board) {
 		std::cout << "The current test failed... The following move was attempted: " << move
 		          << " and was at match/move number: " << matchNumber << "/" << moveNumber << std::endl;
 		board.displayBoard();
-		std::cin.get();
-		std::cin.get();
 	}
+	moveNumber++;
+
+	return movementSuccessful;
 }
 
 std::string PieceMovesTest::genFailedToRemoveErrorMessage() const {
-	return "Failed to delete piece from starting position at turn: " + std::to_string(moveNumber);
+	return "Failed to delete piece from starting position at turn: " + std::to_string(matchNumber) + "/" +
+	       std::to_string(moveNumber);
 }
 
 std::string PieceMovesTest::genFailedToMoveErrorMessage() const {
-	return "Failed to move piece to target position at turn: " + std::to_string(moveNumber);
+	return "Failed to move piece to target position at turn: " + std::to_string(matchNumber) + "/" +
+	       std::to_string(moveNumber);
 }
 
 std::string PieceMovesTest::genFailedToRemoveCapturedPieceErrorMessage() const {
-	return "Failed to remove captured piece at turn: " + std::to_string(moveNumber);
+	return "Failed to remove captured piece at match/turn: " + std::to_string(matchNumber) + "/" +
+	       std::to_string(moveNumber);
 }
 
 std::string PieceMovesTest::genFailedToMakeMoveErrorMessage() const {
-	return "Failed to make move at turn: " + std::to_string(moveNumber);
+	return "Failed to make move at turn: " + std::to_string(matchNumber) + "/" +
+	       std::to_string(moveNumber);
 }
