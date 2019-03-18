@@ -21,7 +21,6 @@ void PieceMovesTest::test() {
 	bool stepping = startMatch != 0 || startMove != 0;
 	std::string move;
 	unsigned long totalMoves = 0;
-	double timeInBoardClass = 0;
 
 	std::chrono::steady_clock::time_point start(std::chrono::steady_clock::now());
 	while (std::getline(pgnFile, line)) {
@@ -32,7 +31,6 @@ void PieceMovesTest::test() {
 		while ((pos = line.find(delimiter)) != std::string::npos) {
 			move = line.substr(0, pos);
 			const bool moveSuccessful = makeMoveAndCheck(move, board);
-			timeInBoardClass += UCIParser::getSecsInBoardClass();
 
 			if (stepping && startMatch == matchNumber && moveNumber >= startMove) {
 				std::cout << "Move played is: " << move << std::endl;
@@ -53,6 +51,8 @@ void PieceMovesTest::test() {
 		matchNumber++;
 	}
 
+	pgnFile.close();
+
 	std::chrono::steady_clock::time_point end(std::chrono::steady_clock::now());
 	double runtime = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 
@@ -61,13 +61,7 @@ void PieceMovesTest::test() {
 	          << "ms"
 	          << std::endl;
 
-	std::cout << "Time spent performing moves in Board class: "
-	          << (int) timeInBoardClass / 3600 << "h " << ((int) timeInBoardClass % 3600) / 60 << "m "
-	          << (int) timeInBoardClass % 60 << "s " << (int) (timeInBoardClass * 1000.0) % 1000 << "ms"
-	          << std::endl;
-
 	std::cout << "Number of moves evaluated: " << totalMoves << std::endl;
-	std::cout << "Avg moves per second: " << totalMoves / timeInBoardClass << std::endl;
 
 	std::cout << std::endl;
 }
@@ -79,7 +73,7 @@ bool PieceMovesTest::makeMoveAndCheck(const std::string &move, Board &board) {
 	const std::uint64_t endPos = (7 - (move[2] - 97)) + (8 * (move[3] - 49));
 	const bool capture = (((std::uint64_t) 1 << endPos) & board.getGlobalBB()) != 0;
 
-	const bool movementSuccessful = UCIParser::parseAndTime(board, move);
+	const bool movementSuccessful = UCIParser::parse(board, move);
 
 	const std::vector<std::uint64_t> setBits = Board::getSetBits(board.getGlobalBB());
 	bool startPosUnset = true, endPosSet = false;

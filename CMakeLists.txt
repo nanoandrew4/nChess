@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 project(nChess)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS_DEBUG "-O3")
+set(CMAKE_CXX_FLAGS_DEBUG "-Ofast")
 #set(CMAKE_CXX_FLAGS_DEBUG "-g -fno-omit-frame-pointer")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
 
@@ -26,4 +26,4 @@ add_executable(nChess
         src/pieces/Rook.cpp
         src/Board.cpp
         src/main.cpp
-        src/UCIParser.cpp test/include/Test.h test/src/PieceMovesTest.cpp test/include/PieceMovesTest.h test/src/Test.cpp)
+        src/UCIParser.cpp test/include/Test.h test/src/PieceMovesTest.cpp test/include/PieceMovesTest.h test/src/Test.cpp benchmarks/src/PGNRunnerBenchmark.cpp benchmarks/include/PGNRunnerBenchmark.h)
