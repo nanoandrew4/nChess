@@ -1,4 +1,4 @@
-#include <UCIParser.hpp>
+#include <io/UCIParser.hpp>
 #include "../include/PieceMovesTest.h"
 
 #include <fstream>
@@ -73,7 +73,7 @@ bool PieceMovesTest::makeMoveAndCheck(const std::string &move, Board &board) {
 	const std::uint64_t endPos = (7 - (move[2] - 97)) + (8 * (move[3] - 49));
 	const bool capture = (((std::uint64_t) 1 << endPos) & board.getGlobalBB()) != 0;
 
-	const bool movementSuccessful = UCIParser::parse(board, move);
+	const bool movementSuccessful = UCIParser::parseAndMove(board, move);
 
 	const std::vector<std::uint64_t> setBits = Board::getSetBits(board.getGlobalBB());
 	bool startPosUnset = true, endPosSet = false;

@@ -26,13 +26,13 @@ bool notRow(char val) {
 }
 
 bool parseAndOutput(const std::string &moveStr, std::ostream &output) {
-	if (moveStr.length() < 4 || moveStr.length() > 5) {
+	if (unlikely(moveStr.length() < 4 || moveStr.length() > 5)) {
 		std::cout << "Move length is invalid" << std::endl;
 		return false;
-	} else if (moveStr.length() == 5 && !isPromotionPiece(moveStr[4])) {
+	} else if (unlikely(moveStr.length() == 5 && !isPromotionPiece(moveStr[4]))) {
 		std::cout << "Promotion piece is invalid" << std::endl;
 		return false;
-	} else if (notColumn(moveStr[0]) || notColumn(moveStr[2]) || notRow(moveStr[1]) || notRow(moveStr[3])) {
+	} else if (unlikely(notColumn(moveStr[0]) || notColumn(moveStr[2]) || notRow(moveStr[1]) || notRow(moveStr[3]))) {
 		std::cout << "Entered move is invalid" << std::endl;
 		return false;
 	}
@@ -40,7 +40,7 @@ bool parseAndOutput(const std::string &moveStr, std::ostream &output) {
 	const std::uint64_t startPos = (7 - (moveStr[0] - 97)) + (8 * (moveStr[1] - 49));
 	const std::uint64_t endPos = (7 - (moveStr[2] - 97)) + (8 * (moveStr[3] - 49));
 	char promotionPiece = ' ';
-	if (moveStr.length() == 5) {
+	if (unlikely(moveStr.length() == 5)) {
 		promotionPiece = moveStr[4];
 		if (promotionPiece >= 97)
 			promotionPiece -= 32; // Make uppercase
@@ -48,7 +48,7 @@ bool parseAndOutput(const std::string &moveStr, std::ostream &output) {
 
 	output << startPos << " " << endPos << " ";
 	if (unlikely(promotionPiece != ' '))
-		output << promotionPiece << " ";
+		output << (int) promotionPiece << " ";
 	return true;
 }
 
@@ -69,14 +69,15 @@ int main(int argc, char *argv[]) {
 	unsigned long moveNumber = 0, matchNumber = 0, totalNumOfMoves = 0;
 
 	auto start = std::chrono::high_resolution_clock::now();
+	const int matchDelimiter = (int) '|';
 
 	while (std::getline(pgnFile, line)) {
-		if (matchNumber % 10000 == 0 && matchNumber > 0)
+		if (unlikely(matchNumber % 10000 == 0 && matchNumber > 0))
 			std::cout << "\rParsed matches: " << matchNumber << std::flush;
 
-		while ((pos = line.find(delimiter)) != std::string::npos) {
+		while (unlikely((pos = line.find(delimiter)) != std::string::npos)) {
 			move = line.substr(0, pos);
-			if (!parseAndOutput(move, outputFile))
+			if (unlikely(!parseAndOutput(move, outputFile)))
 				std::cout << std::endl << "An error ocurred while parsing match/movement: " << matchNumber << "/"
 				          << moveNumber << std::endl;
 			line.erase(0, pos + delimiter.length());
@@ -86,7 +87,7 @@ int main(int argc, char *argv[]) {
 		totalNumOfMoves += moveNumber;
 		moveNumber = 0;
 		matchNumber++;
-		outputFile << "|\n";
+		outputFile << matchDelimiter << "\n";
 	}
 
 	auto elapsed = std::chrono::high_resolution_clock::now() - start;

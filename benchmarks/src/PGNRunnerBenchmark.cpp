@@ -4,21 +4,20 @@
 #include <ctime>
 #include <chrono>
 #include <iomanip>
+#include <io/MoveReader.h>
 #include "../include/PGNRunnerBenchmark.h"
 
 #define unlikely(x)     __builtin_expect((x),0)
 
 void PGNRunnerBenchmark::benchmark(const std::string &testFile) {
-	std::ifstream matchesFile;
-	matchesFile.open(testFile);
+	std::ifstream matchesFile(testFile);
 
 	if (!matchesFile.is_open()) {
 		std::cout << "The matches file for the benchmark could not be opened" << std::endl;
 		return;
 	}
 
-	std::uint64_t startPos, endPos, nextInput;
-	char promotionPiece;
+	char promotionPiece = ' ';
 
 	unsigned long moveNumber = 0, totalNumOfMoves = 0, matchNumber = 0;
 	double cpuCyclesUsed = 0;
@@ -29,16 +28,22 @@ void PGNRunnerBenchmark::benchmark(const std::string &testFile) {
 	std::chrono::steady_clock::time_point startWallTime(std::chrono::steady_clock::now());
 	while (!matchesFile.eof()) {
 		Board board;
-		nextInput = 0;
 
 		if (showMatchesPlayed && matchNumber % 10000 == 0)
 			std::cout << "\rMatches played: " << matchNumber << std::flush;
 
-		while (nextInput != '|') { // TODO: maybe remove promotion piece from file and only react when it is present
-			matchesFile >> startPos >> endPos >> nextInput;
-			promotionPiece = ' ';
-			if (unlikely(nextInput > 65))
-				promotionPiece = nextInput;
+		for (;;) {
+			const std::string moveStr = MoveReader::parse(matchesFile);
+			if (unlikely(moveStr.empty()))
+				break;
+
+			const std::uint64_t startPos = (7u - (moveStr[0] - 97)) + (8 * (moveStr[1] - 49));
+			const std::uint64_t endPos = (7u - (moveStr[2] - 97)) + (8 * (moveStr[3] - 49));
+			if (unlikely(moveStr.length() == 5)) {
+				promotionPiece = moveStr[4];
+				if (promotionPiece >= 97)
+					promotionPiece -= 32; // Make uppercase
+			}
 
 			std::clock_t start_c = std::clock();
 			board.makeMove(startPos, endPos, promotionPiece);

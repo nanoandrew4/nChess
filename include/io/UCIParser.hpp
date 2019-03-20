@@ -10,7 +10,7 @@ class UCIParser {
 public:
 	~UCIParser() = default;
 
-	static bool parse(Board &board, std::string moveStr);
+	static bool parseAndMove(Board &board, std::string moveStr);
 
 	static bool isPromotionPiece(char piece);
 

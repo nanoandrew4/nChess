@@ -5,7 +5,7 @@
 #include "pieces/Knight.hpp"
 #include "pieces/Bishop.hpp"
 #include "pieces/Queen.hpp"
-#include "UCIParser.hpp"
+#include "io/UCIParser.hpp"
 #include "../test/include/Test.h"
 #include "../test/include/PieceMovesTest.h"
 #include "../benchmarks/include/PGNRunnerBenchmark.h"
@@ -68,6 +68,9 @@ void runTests(int numOfArgs, char *args[]) {
 }
 
 void runBenchmark(int numOfArgs, char *args[]) {
+	std::cin.tie(nullptr);
+	std::ios_base::sync_with_stdio(false);
+
 	PGNRunnerBenchmark benchmark;
 
 	const std::string pathToBenchMatches;
@@ -85,6 +88,6 @@ void playMatch() {
 			std::cout << "Current turn: " << b.getCurrentTurn() << std::endl;
 			std::cout << "Enter move in UCI format: ";
 			std::cin >> move;
-		} while (!UCIParser::parse(b, move));
+		} while (!UCIParser::parseAndMove(b, move));
 	}
 }

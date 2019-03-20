@@ -1,7 +1,7 @@
 #include <chrono>
-#include <UCIParser.hpp>
+#include <io/UCIParser.hpp>
 
-bool UCIParser::parse(Board &board, std::string moveStr) {
+bool UCIParser::parseAndMove(Board &board, std::string moveStr) {
 	if (moveStr.length() < 4 || moveStr.length() > 5) {
 		std::cout << "Move length is invalid" << std::endl;
 		return false;

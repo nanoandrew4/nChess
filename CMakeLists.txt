@@ -3,7 +3,7 @@ project(nChess)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_DEBUG "-Ofast")
-#set(CMAKE_CXX_FLAGS_DEBUG "-g -fno-omit-frame-pointer")
+#set(CMAKE_CXX_FLAGS_DEBUG "-g -fno-omit-frame-pointer -D_GLIBCXX_DEBUG")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
 
 include_directories(include)
@@ -17,7 +17,8 @@ add_executable(nChess
         include/pieces/Queen.hpp
         include/pieces/Rook.hpp
         include/Board.hpp
-        include/UCIParser.hpp
+        include/io/UCIParser.hpp
+        include/io/MoveReader.h
         src/pieces/Bishop.cpp
         src/pieces/King.cpp
         src/pieces/Knight.cpp
@@ -26,4 +27,5 @@ add_executable(nChess
         src/pieces/Rook.cpp
         src/Board.cpp
         src/main.cpp
-        src/UCIParser.cpp test/include/Test.h test/src/PieceMovesTest.cpp test/include/PieceMovesTest.h test/src/Test.cpp benchmarks/src/PGNRunnerBenchmark.cpp benchmarks/include/PGNRunnerBenchmark.h)
+        src/io/MoveReader.cpp
+        src/io/UCIParser.cpp test/include/Test.h test/src/PieceMovesTest.cpp test/include/PieceMovesTest.h test/src/Test.cpp benchmarks/src/PGNRunnerBenchmark.cpp benchmarks/include/PGNRunnerBenchmark.h)
