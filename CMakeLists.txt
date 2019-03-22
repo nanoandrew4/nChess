@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.13)
 project(nChess)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS_DEBUG "-O3")
-#set(CMAKE_CXX_FLAGS_DEBUG "-g -fno-omit-frame-pointer -D_GLIBCXX_DEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -fno-omit-frame-pointer -D_GLIBCXX_DEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
 
 include_directories(include)
@@ -29,10 +29,10 @@ add_executable(nChess
         src/main.cpp
         src/io/MoveReader.cpp
         src/io/UCIParser.cpp test/include/Test.h test/src/PieceMovesTest.cpp test/include/PieceMovesTest.h test/src/Test.cpp
-        benchmarks/include/PGNRunnerBenchmark.h
+        benchmarks/include/BoardMoveBenchmarks.h
         benchmarks/include/MoveReaderBenchmark.h
         benchmarks/include/Benchmark.h
-        benchmarks/src/PGNRunnerBenchmark.cpp
+        benchmarks/src/BoardMoveBenchmarks.cpp
         benchmarks/src/MoveReaderBenchmark.cpp
         benchmarks/src/Benchmark.cpp
         )

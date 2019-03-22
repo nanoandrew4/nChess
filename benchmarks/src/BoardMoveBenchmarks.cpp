@@ -5,11 +5,11 @@
 #include <chrono>
 #include <iomanip>
 #include <io/MoveReader.h>
-#include "../include/PGNRunnerBenchmark.h"
+#include "../include/BoardMoveBenchmarks.h"
 
 #define unlikely(x)     __builtin_expect((x),0)
 
-void PGNRunnerBenchmark::benchmark(const std::string &testFile) {
+void BoardMoveBenchmarks::benchmark(const std::string &testFile) {
 	std::ifstream matchesFile(testFile);
 
 	if (!matchesFile.is_open()) {
@@ -20,15 +20,16 @@ void PGNRunnerBenchmark::benchmark(const std::string &testFile) {
 	char promotionPiece = ' ';
 
 	unsigned long moveNumber = 0, totalNumOfMoves = 0, matchNumber = 0;
-	double cpuCyclesUsed = 0;
+	std::clock_t cpuCyclesUsed = 0;
 
 	std::cout << "Benchmark is starting, this may take a while depending on the size of the benchmarking file..."
 	          << std::endl;
 
-	std::chrono::steady_clock::time_point startWallTime(std::chrono::steady_clock::now());
-
 	MoveReader moveReader(matchesFile);
-	while (!matchesFile.eof()) {
+
+	startWallTimer();
+
+	while (!moveReader.finishedReading()) {
 		Board board;
 
 		if (showMatchesPlayed && matchNumber % 10000 == 0)
@@ -44,9 +45,9 @@ void PGNRunnerBenchmark::benchmark(const std::string &testFile) {
 					promotionPiece -= 32; // Make uppercase
 			}
 
-			std::clock_t start_c = std::clock();
+			startCPUTimer();
 			board.makeMove(startPos, endPos, promotionPiece);
-			cpuCyclesUsed += std::clock() - start_c;
+			stopCPUTimer();
 			moveNumber++;
 		}
 
@@ -55,24 +56,18 @@ void PGNRunnerBenchmark::benchmark(const std::string &testFile) {
 		matchNumber++;
 	}
 
-	std::chrono::steady_clock::time_point endWallTime(std::chrono::steady_clock::now());
-	double runtime = std::chrono::duration_cast<std::chrono::duration<double>>(endWallTime - startWallTime).count();
+	stopWallTimer();
 
 	std::cout << "Benchmark has finished running, " << matchNumber << " matches were played, " << totalNumOfMoves
 	          << " moves" << std::endl;
 
-	const double cpuTimeInSecs = cpuCyclesUsed / CLOCKS_PER_SEC;
+	std::cout << getElapsedCPUCycles() << std::endl;
+	const double cpuTimeInSecs = getElapsedCPUCycles() / (double) CLOCKS_PER_SEC;
 	std::cout << "CPU time taken by board.makeMove() is: ";
 	printFormattedRuntime(cpuTimeInSecs);
 
 	std::cout << "Wall time taken to run benchmark: ";
-	printFormattedRuntime(runtime);
+	printFormattedRuntime(getElapsedWallSeconds());
 
 	std::cout << "Avg moves per second: " << std::setprecision(4) << (totalNumOfMoves / cpuTimeInSecs) << std::endl;
-}
-
-void PGNRunnerBenchmark::printFormattedRuntime(const double micros) {
-	std::cout << (int) micros / 3600 << "h " << ((int) micros % 3600) / 60 << "m "
-	          << (int) micros % 60 << "s " << (int) (micros * 1000.0) % 1000 << "ms"
-	          << std::endl;
 }

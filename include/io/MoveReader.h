@@ -11,15 +11,22 @@ public:
 
 	std::string readMove();
 
+	unsigned long getBytesRead() const { return bytesRead; }
+
+	bool finishedReading() const { return storedMoveReadPos == storedMoveWritePos && !stream.is_open(); }
+
 private:
 	std::ifstream stream;
 
-	char buf[4096] = {};
+	static const int BUF_SIZE = 4096;
+	char buf[BUF_SIZE] = {};
 	std::string move;
 
-	std::array<std::string, 65536> storedMoves;
+	std::array<std::string, 65536> storedMoves{""};
 	std::uint16_t storedMoveReadPos = 0;
 	std::uint16_t storedMoveWritePos = 0;
+
+	unsigned long bytesRead = 0;
 };
 
 #endif //NCHESS_MOVEREADER_H

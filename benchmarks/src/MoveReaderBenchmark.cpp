@@ -6,12 +6,16 @@
 void MoveReaderBenchmark::benchmark(const std::string &movesFilePath) {
 	std::ifstream movesFile(movesFilePath);
 
+	std::cout << "Starting file processing benchmark... " << std::endl;
+
 	MoveReader moveReader(movesFile);
 	startWallTimer();
-	while (!movesFile.eof()) {
+	while (!movesFile.eof())
 		moveReader.readMove();
-	}
-	stopCPUTimer();
+	stopWallTimer();
 
-	std::cout << "File read took: " << std::endl;
+	std::cout << "Finished benchmark, file read took: " << std::endl;
+	std::cout << "File size in bytes is: " << moveReader.getBytesRead() << std::endl;
+
+	movesFile.close();
 }

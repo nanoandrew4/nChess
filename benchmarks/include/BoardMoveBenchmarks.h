@@ -1,18 +1,16 @@
 #ifndef NCHESS_PGNRUNNERBENCHMARK_H
 #define NCHESS_PGNRUNNERBENCHMARK_H
 
-
 #include <string>
+#include "Benchmark.h"
 
-class PGNRunnerBenchmark {
+class BoardMoveBenchmarks : public Benchmark {
 public:
-	PGNRunnerBenchmark() = default;
+	BoardMoveBenchmarks() = default;
 
-	~PGNRunnerBenchmark() = default;
+	~BoardMoveBenchmarks() = default;
 
 	void benchmark(const std::string &testFile);
-
-	void printFormattedRuntime(double seconds);
 
 	static constexpr bool showMatchesPlayed = true;
 };

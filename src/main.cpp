@@ -8,7 +8,8 @@
 #include "io/UCIParser.hpp"
 #include "../test/include/Test.h"
 #include "../test/include/PieceMovesTest.h"
-#include "../benchmarks/include/PGNRunnerBenchmark.h"
+#include "../benchmarks/include/BoardMoveBenchmarks.h"
+#include "../benchmarks/include/MoveReaderBenchmark.h"
 
 void playMatch();
 
@@ -35,7 +36,7 @@ int main(int argc, char *argv[]) {
 
 	if (argc > 1 && strncmp(argv[1], "test", 4) == 0)
 		runTests(argc, argv);
-	else if (argc == 3 && strncmp(argv[1], "bench", 5) == 0)
+	else if (argc == 4 && strncmp(argv[1], "bench", 5) == 0)
 		runBenchmark(argc, argv);
 	else
 		playMatch();
@@ -71,10 +72,16 @@ void runBenchmark(int numOfArgs, char *args[]) {
 	std::cin.tie(nullptr);
 	std::ios_base::sync_with_stdio(false);
 
-	PGNRunnerBenchmark benchmark;
+	if (strncmp(args[2], "move", 4) == 0) {
+		BoardMoveBenchmarks benchmark;
 
-	const std::string pathToBenchMatches;
-	benchmark.benchmark(args[2]);
+		benchmark.benchmark(args[3]);
+	} else if (strncmp(args[2], "fileread", 8) == 0) {
+		MoveReaderBenchmark benchmark;
+
+		const std::string pathToBenchMatches;
+		benchmark.benchmark(pathToBenchMatches);
+	}
 }
 
 void playMatch() {

@@ -6,6 +6,7 @@
 #include "Benchmark.h"
 
 class MoveReaderBenchmark : public Benchmark {
+public:
 	void benchmark(const std::string &movesFilePath);
 };
 
