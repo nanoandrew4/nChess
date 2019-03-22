@@ -3,33 +3,30 @@
 
 #include <fstream>
 #include <chrono>
+#include <io/MoveReader.h>
 
 void PieceMovesTest::test() {
-	std::ifstream pgnFile;
-	pgnFile.open(PieceMovesTest::pathToTestFile);
+	std::ifstream matchesFile;
+	matchesFile.open(PieceMovesTest::pathToTestFile);
 
-	if (!pgnFile.is_open()) {
+	if (!matchesFile.is_open()) {
 		std::cout << "Error opening test file for test class PieceMovesTest, path to file is invalid or was not set" <<
 		          std::endl;
 		return;
 	}
 
-	std::string line;
-	const std::string delimiter = " ";
-	std::size_t pos = 0;
-
 	bool stepping = startMatch != 0 || startMove != 0;
-	std::string move;
 	unsigned long totalMoves = 0;
 
 	std::chrono::steady_clock::time_point start(std::chrono::steady_clock::now());
-	while (std::getline(pgnFile, line)) {
+	MoveReader moveReader(matchesFile);
+	while (!matchesFile.eof()) {
 		Board board;
 		if (matchNumber % 10000 == 0 && matchNumber > 0)
 			std::cout << "\rNumber of test matches completed: " << matchNumber << std::flush;
 
-		while ((pos = line.find(delimiter)) != std::string::npos) {
-			move = line.substr(0, pos);
+		std::string move;
+		while (!(move = moveReader.readMove()).empty()) {
 			const bool moveSuccessful = makeMoveAndCheck(move, board);
 
 			if (stepping && startMatch == matchNumber && moveNumber >= startMove) {
@@ -42,8 +39,6 @@ void PieceMovesTest::test() {
 
 			if (!stepping && !moveSuccessful)
 				break;
-
-			line.erase(0, pos + delimiter.length());
 		}
 
 		totalMoves += moveNumber;
@@ -51,7 +46,7 @@ void PieceMovesTest::test() {
 		matchNumber++;
 	}
 
-	pgnFile.close();
+	matchesFile.close();
 
 	std::chrono::steady_clock::time_point end(std::chrono::steady_clock::now());
 	double runtime = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();

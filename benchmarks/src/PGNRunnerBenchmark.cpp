@@ -26,17 +26,16 @@ void PGNRunnerBenchmark::benchmark(const std::string &testFile) {
 	          << std::endl;
 
 	std::chrono::steady_clock::time_point startWallTime(std::chrono::steady_clock::now());
+
+	MoveReader moveReader(matchesFile);
 	while (!matchesFile.eof()) {
 		Board board;
 
 		if (showMatchesPlayed && matchNumber % 10000 == 0)
 			std::cout << "\rMatches played: " << matchNumber << std::flush;
 
-		for (;;) {
-			const std::string moveStr = MoveReader::parse(matchesFile);
-			if (unlikely(moveStr.empty()))
-				break;
-
+		std::string moveStr;
+		while (!(moveStr = moveReader.readMove()).empty()) {
 			const std::uint64_t startPos = (7u - (moveStr[0] - 97)) + (8 * (moveStr[1] - 49));
 			const std::uint64_t endPos = (7u - (moveStr[2] - 97)) + (8 * (moveStr[3] - 49));
 			if (unlikely(moveStr.length() == 5)) {

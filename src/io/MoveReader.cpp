@@ -2,16 +2,9 @@
 #include <iostream>
 #include <numeric>
 
-char MoveReader::buf[];
-std::string MoveReader::move;
-std::array<std::string, 65536> MoveReader::storedMoves;
-
-std::uint16_t MoveReader::storedMoveReadPos = 0;
-std::uint16_t MoveReader::storedMoveWritePos = 0;
-
 #define likely(x)     __builtin_expect((x),1)
 
-std::string MoveReader::parse(std::ifstream &stream) {
+std::string MoveReader::readMove() {
 	if (likely(storedMoveReadPos != storedMoveWritePos))
 		return storedMoves[storedMoveReadPos++];
 

@@ -7,15 +7,19 @@
 
 class MoveReader {
 public:
-	static std::string parse(std::ifstream &stream);
+	explicit MoveReader(std::ifstream &stream) { this->stream = std::move(stream); }
+
+	std::string readMove();
 
 private:
-	static char buf[4096];
-	static std::string move;
+	std::ifstream stream;
 
-	static std::array<std::string, 65536> storedMoves;
-	static std::uint16_t storedMoveReadPos;
-	static std::uint16_t storedMoveWritePos;
+	char buf[4096] = {};
+	std::string move;
+
+	std::array<std::string, 65536> storedMoves;
+	std::uint16_t storedMoveReadPos = 0;
+	std::uint16_t storedMoveWritePos = 0;
 };
 
 #endif //NCHESS_MOVEREADER_H
