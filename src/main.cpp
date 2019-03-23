@@ -87,13 +87,16 @@ void playMatch() {
 	Board b;
 	while (!b.isMatchOver()) {
 		b.displayBoard();
-		std::string move;
+		std::string moveStr;
+		std::array<char, 5> moveArr{};
 
 		do {
 			std::cout << "Player turn: " << (b.getCurrentTurn() % 2 == 0 ? "white" : "black") << std::endl;
 			std::cout << "Current turn: " << b.getCurrentTurn() << std::endl;
 			std::cout << "Enter move in UCI format: ";
-			std::cin >> move;
-		} while (!UCIParser::parseAndMove(b, move));
+			std::cin >> moveStr;
+			for (int i = 0; i < moveStr.length() && i < moveArr.size(); i++)
+				moveArr[i] = moveStr[i];
+		} while (moveStr.length() < 4 || moveStr.length() > 5 || !UCIParser::parseAndMove(b, moveArr));
 	}
 }

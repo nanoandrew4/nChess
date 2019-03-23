@@ -11,11 +11,13 @@ public:
 
 	/**
 	 * Reads a move, either from the stored moves buffer, or if all have been read, from the stream. Moves are read in
-	 * bulk and stored internally to minimize I/O stalling the program.
+	 * bulk and stored internally to minimize I/O stalling the program. Moves are returned in UCI format, so for example
+	 * {'e', '2', 'e', '4', '\0'}.
 	 *
-	 * @return The next move in the stream
+	 * @return The next move in the stream, as a sequence of five characters. If the end of a match has been reached,
+	 * the returned array will only contain '\0'
 	 */
-	std::string readMove();
+	std::array<char, 5> readMove();
 
 	/**
 	 * Returns the number of bytes read from the stream so far.
@@ -35,15 +37,17 @@ public:
 private:
 	std::ifstream stream;
 
-	static const int BUF_SIZE = 4096;
+	static const int BUF_SIZE = 8192; // Random power of two, seems to work well
 	char buf[BUF_SIZE] = {};
-	std::string move;
+
+	std::array<char, 5> move = {'\0'};
+	std::uint8_t moveStrPos = 0;
 
 	/*
 	 * Array size is 2^16 in order to allow the read and write heads to loop around the array using integer overflow,
 	 * given that they are uint16_t types. This means a vector is not necessary, and gives a good speed boost.
 	 */
-	std::array<std::string, 65536> storedMovesBuffer{""};
+	std::array<std::array<char, 5>, 65536> storedMovesBuffer{};
 	std::uint16_t storedMoveReadPos = 0;
 	std::uint16_t storedMoveWritePos = 0;
 

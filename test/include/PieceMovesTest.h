@@ -26,7 +26,7 @@ private:
 
 	void test() override;
 
-	bool makeMoveAndCheck(const std::string &move, Board &board);
+	bool makeMoveAndCheck(const std::array<char, 5> &move, Board &board);
 
 	std::string genFailedToRemoveErrorMessage() const;
 

@@ -25,12 +25,12 @@ void PieceMovesTest::test() {
 		if (matchNumber % 10000 == 0 && matchNumber > 0)
 			std::cout << "\rNumber of test matches completed: " << matchNumber << std::flush;
 
-		std::string move;
-		while (!(move = moveReader.readMove()).empty()) {
+		std::array<char, 5> move{};
+		while ((move = moveReader.readMove())[0] != '\0') {
 			const bool moveSuccessful = makeMoveAndCheck(move, board);
 
 			if (stepping && startMatch == matchNumber && moveNumber >= startMove) {
-				std::cout << "Move played is: " << move << std::endl;
+				std::cout << "Move played is: " << std::string(move.data()) << std::endl;
 				std::cout << "Current match/move number: " << matchNumber << "/" << moveNumber << std::endl;
 				board.displayBoard();
 				std::cin.get();
@@ -61,11 +61,11 @@ void PieceMovesTest::test() {
 	std::cout << std::endl;
 }
 
-bool PieceMovesTest::makeMoveAndCheck(const std::string &move, Board &board) {
+bool PieceMovesTest::makeMoveAndCheck(const std::array<char, 5> &move, Board &board) {
 	const std::vector<std::uint64_t> setGlobalBitsBeforeMove = Board::getSetBits(board.getGlobalBB());
 
-	const std::uint64_t startPos = (7 - (move[0] - 97)) + (8 * (move[1] - 49));
-	const std::uint64_t endPos = (7 - (move[2] - 97)) + (8 * (move[3] - 49));
+	const std::uint64_t startPos = (7u - (move[0] - 97)) + (8 * (move[1] - 49));
+	const std::uint64_t endPos = (7u - (move[2] - 97)) + (8 * (move[3] - 49));
 	const bool capture = (((std::uint64_t) 1 << endPos) & board.getGlobalBB()) != 0;
 
 	const bool movementSuccessful = UCIParser::parseAndMove(board, move);
@@ -90,7 +90,7 @@ bool PieceMovesTest::makeMoveAndCheck(const std::string &move, Board &board) {
 		logTestFailure(TestFailData("PieceMovesTest", genFailedToRemoveCapturedPieceErrorMessage()));
 
 	if (getNumOfTestFailures() != prevSize) {
-		std::cout << "The current test failed... The following move was attempted: " << move
+		std::cout << "The current test failed... The following move was attempted: " << std::string(move.data())
 		          << " and was at match/move number: " << matchNumber << "/" << moveNumber << std::endl;
 		board.displayBoard();
 	}

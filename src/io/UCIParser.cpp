@@ -1,23 +1,23 @@
 #include <chrono>
 #include <io/UCIParser.hpp>
 
-bool UCIParser::parseAndMove(Board &board, std::string moveStr) {
-	if (moveStr.length() < 4 || moveStr.length() > 5) {
+bool UCIParser::parseAndMove(Board &board, std::array<char, 5> move) {
+	if (move[0] == '\0' || move[1] == '\0' || move[2] == '\0' || move[3] == '\0') {
 		std::cout << "Move length is invalid" << std::endl;
 		return false;
-	} else if (moveStr.length() == 5 && !isPromotionPiece(moveStr[4])) {
+	} else if (move[4] != '\0' && !isPromotionPiece(move[4])) {
 		std::cout << "Promotion piece is invalid" << std::endl;
 		return false;
-	} else if (notColumn(moveStr[0]) || notColumn(moveStr[2]) || notRow(moveStr[1]) || notRow(moveStr[3])) {
+	} else if (notColumn(move[0]) || notColumn(move[2]) || notRow(move[1]) || notRow(move[3])) {
 		std::cout << "Entered move is invalid" << std::endl;
 		return false;
 	}
 
-	const std::uint64_t startPos = (7 - (moveStr[0] - 97)) + (8 * (moveStr[1] - 49));
-	const std::uint64_t endPos = (7 - (moveStr[2] - 97)) + (8 * (moveStr[3] - 49));
+	const std::uint64_t startPos = (7u - (move[0] - 97)) + (8 * (move[1] - 49));
+	const std::uint64_t endPos = (7u - (move[2] - 97)) + (8 * (move[3] - 49));
 	char promotionPiece = ' ';
-	if (moveStr.length() == 5) {
-		promotionPiece = moveStr[4];
+	if (move[4] != '\0') {
+		promotionPiece = move[4];
 		if (promotionPiece >= 97)
 			promotionPiece -= 32; // Make uppercase
 	}

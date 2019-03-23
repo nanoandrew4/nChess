@@ -5,6 +5,7 @@
 #include <chrono>
 #include <iomanip>
 #include <io/MoveReader.h>
+#include <cmath>
 #include "../include/BoardMoveBenchmarks.h"
 
 void BoardMoveBenchmarks::benchmark(const std::string &testFile) {
@@ -20,8 +21,11 @@ void BoardMoveBenchmarks::benchmark(const std::string &testFile) {
 	std::cout << "Benchmark is starting, this may take a while depending on the size of the benchmarking file..."
 	          << std::endl;
 
-	unsigned long moveNumber = 0, totalNumOfMoves = 0, matchNumber = 0;
 	MoveReader moveReader(matchesFile);
+
+	unsigned long moveNumber = 0, totalNumOfMoves = 0, matchNumber = 0;
+	long maxMoveTime = 0;
+	long minMoveTime = 1u << 31u;
 
 	startWallTimer();
 	while (!moveReader.finishedReading()) {
@@ -30,19 +34,25 @@ void BoardMoveBenchmarks::benchmark(const std::string &testFile) {
 		if (showMatchesPlayed && matchNumber % 10000 == 0)
 			std::cout << "\rMatches played: " << matchNumber << std::flush;
 
-		std::string moveStr;
-		while (!(moveStr = moveReader.readMove()).empty()) {
-			const std::uint64_t startPos = (7u - (moveStr[0] - 97)) + (8 * (moveStr[1] - 49));
-			const std::uint64_t endPos = (7u - (moveStr[2] - 97)) + (8 * (moveStr[3] - 49));
-			if (moveStr.length() == 5) {
-				promotionPiece = moveStr[4];
+		std::array<char, 5> move{};
+		while ((move = moveReader.readMove())[0] != '\0') {
+			const std::uint64_t startPos = (7u - (move[0] - 97)) + (8 * (move[1] - 49));
+			const std::uint64_t endPos = (7u - (move[2] - 97)) + (8 * (move[3] - 49));
+			if (move[4] != '\0') {
+				promotionPiece = move[4];
 				if (promotionPiece >= 97)
 					promotionPiece -= 32; // Make uppercase
 			}
 
-			startCPUTimer();
+			startNanoTimer();
 			board.makeMove(startPos, endPos, promotionPiece);
-			stopCPUTimer();
+			stopNanoTimer();
+			accumulateNanoTime();
+
+			if (getElapsedNanoseconds() < minMoveTime)
+				minMoveTime = getElapsedNanoseconds();
+			if (getElapsedNanoseconds() > maxMoveTime)
+				maxMoveTime = getElapsedNanoseconds();
 			moveNumber++;
 		}
 
@@ -56,12 +66,34 @@ void BoardMoveBenchmarks::benchmark(const std::string &testFile) {
 	std::cout << "\rBenchmark has finished running, " << matchNumber << " matches were played, " << totalNumOfMoves
 	          << " moves" << std::endl;
 
-	const double cpuTimeInSecs = getElapsedCPUCycles() / (double) CLOCKS_PER_SEC;
+	const double cpuTimeInSecs = getAccumulatedCPUSeconds() / pow(10, 9);
 	std::cout << "CPU time taken by board.makeMove() is: ";
 	printFormattedRuntime(cpuTimeInSecs);
 
 	std::cout << "Wall time taken to run benchmark: ";
 	printFormattedRuntime(getElapsedWallSeconds());
 
-	std::cout << "Avg moves per second: " << std::setprecision(4) << (totalNumOfMoves / cpuTimeInSecs) << std::endl;
+	printTimePerMove("Avg time per move: ", cpuTimeInSecs / totalNumOfMoves);
+	printTimePerMove("Lowest move time: ", minMoveTime / pow(10, 9));
+	printTimePerMove("Highest move time: ", maxMoveTime / pow(10, 9));
+}
+
+void BoardMoveBenchmarks::printTimePerMove(std::string preTimeText, double avgTimePerMove) {
+	double normalizedTimePerMove = avgTimePerMove;
+	while (normalizedTimePerMove < 1.0 && normalizedTimePerMove != 0.0)
+		normalizedTimePerMove *= 1000;
+
+	std::cout << preTimeText << normalizedTimePerMove << " " << getSubsecondTimeUnit(avgTimePerMove)
+	          << std::endl;
+}
+
+std::string BoardMoveBenchmarks::getSubsecondTimeUnit(double secs) {
+	if (secs * pow(10, 3) > 1.0)
+		return "ms";
+	else if (secs * pow(10, 6) > 1.0)
+		return "us";
+	else if (secs * pow(10, 9) > 1.0)
+		return "ns";
+	else
+		return "??";
 }

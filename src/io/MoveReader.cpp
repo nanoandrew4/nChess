@@ -2,7 +2,7 @@
 #include <iostream>
 #include <numeric>
 
-std::string MoveReader::readMove() {
+std::array<char, 5> MoveReader::readMove() {
 	if (storedMoveReadPos != storedMoveWritePos) // Read from stored buffer is most likely scenario
 		return storedMovesBuffer[storedMoveReadPos++];
 
@@ -18,12 +18,14 @@ std::string MoveReader::readMove() {
 				break;
 			case '\n':
 				storedMovesBuffer[storedMoveWritePos++] = move;
-				storedMovesBuffer[storedMoveWritePos++] = ""; // Store empty string to signify end of match
-				move = "";
+				storedMovesBuffer[storedMoveWritePos++] = {'\0'}; // Store empty string to signify end of match
+				moveStrPos = 0;
+				move.fill('\0');
 				break;
 			case ' ':
 				storedMovesBuffer[storedMoveWritePos++] = move;
-				move = "";
+				moveStrPos = 0;
+				move.fill('\0');
 				break;
 			case 'a':
 			case 'b':
@@ -45,7 +47,7 @@ std::string MoveReader::readMove() {
 			case 'R':
 			case 'B':
 			case 'N':
-				move.append(1, buf[i]);
+				move[moveStrPos++] = buf[i];
 				break;
 			default:
 				break;

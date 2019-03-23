@@ -12,6 +12,10 @@ public:
 
 	void benchmark(const std::string &testFile);
 
+	void printTimePerMove(std::string preTimeText, double avgTimePerMove);
+
+	std::string getSubsecondTimeUnit(double secs);
+
 	static constexpr bool showMatchesPlayed = true;
 };
 
