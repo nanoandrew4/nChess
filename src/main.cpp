@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 
 	if (argc > 1 && strncmp(argv[1], "test", 4) == 0)
 		runTests(argc, argv);
-	else if (argc == 4 && strncmp(argv[1], "bench", 5) == 0)
+	else if (argc > 2 && strncmp(argv[1], "bench", 5) == 0)
 		runBenchmark(argc, argv);
 	else
 		playMatch();
@@ -79,8 +79,7 @@ void runBenchmark(int numOfArgs, char *args[]) {
 	} else if (strncmp(args[2], "fileread", 8) == 0) {
 		MoveReaderBenchmark benchmark;
 
-		const std::string pathToBenchMatches;
-		benchmark.benchmark(pathToBenchMatches);
+		benchmark.benchmark(args[3]);
 	}
 }
 

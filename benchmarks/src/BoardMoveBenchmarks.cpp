@@ -7,8 +7,6 @@
 #include <io/MoveReader.h>
 #include "../include/BoardMoveBenchmarks.h"
 
-#define unlikely(x)     __builtin_expect((x),0)
-
 void BoardMoveBenchmarks::benchmark(const std::string &testFile) {
 	std::ifstream matchesFile(testFile);
 
@@ -19,16 +17,13 @@ void BoardMoveBenchmarks::benchmark(const std::string &testFile) {
 
 	char promotionPiece = ' ';
 
-	unsigned long moveNumber = 0, totalNumOfMoves = 0, matchNumber = 0;
-	std::clock_t cpuCyclesUsed = 0;
-
 	std::cout << "Benchmark is starting, this may take a while depending on the size of the benchmarking file..."
 	          << std::endl;
 
+	unsigned long moveNumber = 0, totalNumOfMoves = 0, matchNumber = 0;
 	MoveReader moveReader(matchesFile);
 
 	startWallTimer();
-
 	while (!moveReader.finishedReading()) {
 		Board board;
 
@@ -39,7 +34,7 @@ void BoardMoveBenchmarks::benchmark(const std::string &testFile) {
 		while (!(moveStr = moveReader.readMove()).empty()) {
 			const std::uint64_t startPos = (7u - (moveStr[0] - 97)) + (8 * (moveStr[1] - 49));
 			const std::uint64_t endPos = (7u - (moveStr[2] - 97)) + (8 * (moveStr[3] - 49));
-			if (unlikely(moveStr.length() == 5)) {
+			if (moveStr.length() == 5) {
 				promotionPiece = moveStr[4];
 				if (promotionPiece >= 97)
 					promotionPiece -= 32; // Make uppercase
@@ -58,10 +53,9 @@ void BoardMoveBenchmarks::benchmark(const std::string &testFile) {
 
 	stopWallTimer();
 
-	std::cout << "Benchmark has finished running, " << matchNumber << " matches were played, " << totalNumOfMoves
+	std::cout << "\rBenchmark has finished running, " << matchNumber << " matches were played, " << totalNumOfMoves
 	          << " moves" << std::endl;
 
-	std::cout << getElapsedCPUCycles() << std::endl;
 	const double cpuTimeInSecs = getElapsedCPUCycles() / (double) CLOCKS_PER_SEC;
 	std::cout << "CPU time taken by board.makeMove() is: ";
 	printFormattedRuntime(cpuTimeInSecs);

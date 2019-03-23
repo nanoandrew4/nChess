@@ -2,29 +2,27 @@
 #include <iostream>
 #include <numeric>
 
-#define likely(x)     __builtin_expect((x),1)
-#define unlikely(x)     __builtin_expect((x),0)
-
 std::string MoveReader::readMove() {
-	if (likely(storedMoveReadPos != storedMoveWritePos))
-		return storedMoves[storedMoveReadPos++];
+	if (storedMoveReadPos != storedMoveWritePos) // Read from stored buffer is most likely scenario
+		return storedMovesBuffer[storedMoveReadPos++];
 
 	stream.read(buf, sizeof(buf));
 	std::streamsize k = stream.gcount();
-	if (unlikely(k != BUF_SIZE))
+	if (k != BUF_SIZE)
 		stream.close();
 	bytesRead += k;
+
 	for (int i = 0; i < k; ++i) {
 		switch (buf[i]) {
 			case '\r':
 				break;
 			case '\n':
-				storedMoves[storedMoveWritePos++] = move;
-				storedMoves[storedMoveWritePos++] = ""; // Store empty string to signify end of match
+				storedMovesBuffer[storedMoveWritePos++] = move;
+				storedMovesBuffer[storedMoveWritePos++] = ""; // Store empty string to signify end of match
 				move = "";
 				break;
 			case ' ':
-				storedMoves[storedMoveWritePos++] = move;
+				storedMovesBuffer[storedMoveWritePos++] = move;
 				move = "";
 				break;
 			case 'a':
@@ -54,5 +52,5 @@ std::string MoveReader::readMove() {
 		}
 	}
 
-	return storedMoves[storedMoveReadPos++];
+	return storedMovesBuffer[storedMoveReadPos++];
 }

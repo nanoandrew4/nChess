@@ -6,17 +6,13 @@
 
 class Benchmark {
 public:
-	void resetWallTimer() { elapsedWallSeconds = 0; }
-
-	void resetCPUTimer() { elapsedCPUCycles = 0; }
-
 	void startWallTimer() { wallStart = std::chrono::steady_clock::now(); };
 
 	void startCPUTimer() { cpuStart = std::clock(); };
 
-	void stopWallTimer() { elapsedCPUCycles += std::clock() - cpuStart; };
+	void stopCPUTimer() { elapsedCPUCycles += std::clock() - cpuStart; };
 
-	void stopCPUTimer() {
+	void stopWallTimer() {
 		elapsedWallSeconds += std::chrono::duration_cast<std::chrono::duration<double>>(
 				std::chrono::steady_clock::now() - wallStart).count();
 	};
@@ -32,11 +28,11 @@ public:
 	}
 
 private:
-	std::clock_t cpuStart;
+	std::clock_t cpuStart{};
 	std::chrono::steady_clock::time_point wallStart;
 
-	double elapsedWallSeconds;
-	std::clock_t elapsedCPUCycles;
+	double elapsedWallSeconds{};
+	std::clock_t elapsedCPUCycles{};
 };
 
 #endif //NCHESS_BENCHMARK_H
