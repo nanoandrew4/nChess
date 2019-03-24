@@ -16,22 +16,27 @@ void BoardMoveBenchmarks::benchmark(const std::string &testFile) {
 		return;
 	}
 
-	char promotionPiece = ' ';
-
 	std::cout << "Benchmark is starting, this may take a while depending on the size of the benchmarking file..."
 	          << std::endl;
 
-	MoveReader moveReader(matchesFile);
-
-	unsigned long moveNumber = 0, totalNumOfMoves = 0, matchNumber = 0;
-	long maxMoveTime = 0;
-	long minMoveTime = 1u << 31u;
-
 	startWallTimer();
+	runBenchmark(matchesFile);
+	stopWallTimer();
+
+	std::cout << "\rBenchmark has finished running, " << matchNumber << " matches were played, " << totalNumOfMoves
+	          << " moves" << std::endl;
+
+	printMetrics();
+}
+
+void BoardMoveBenchmarks::runBenchmark(std::ifstream &stream) {
+	MoveReader moveReader(stream);
+
 	while (!moveReader.finishedReading()) {
 		Board board;
+		char promotionPiece = ' ';
 
-		if (showMatchesPlayed && matchNumber % 10000 == 0)
+		if (matchNumber % 10000 == 0)
 			std::cout << "\rMatches played: " << matchNumber << std::flush;
 
 		std::array<char, 5> move{};
@@ -60,12 +65,9 @@ void BoardMoveBenchmarks::benchmark(const std::string &testFile) {
 		moveNumber = 0;
 		matchNumber++;
 	}
+}
 
-	stopWallTimer();
-
-	std::cout << "\rBenchmark has finished running, " << matchNumber << " matches were played, " << totalNumOfMoves
-	          << " moves" << std::endl;
-
+void BoardMoveBenchmarks::printMetrics() {
 	const double cpuTimeInSecs = getAccumulatedCPUSeconds() / pow(10, 9);
 	std::cout << "CPU time taken by board.makeMove() is: ";
 	printFormattedRuntime(cpuTimeInSecs);
