@@ -10,10 +10,9 @@ class Queen
 
     static void initialize();
     static std::array<std::uint64_t, 64> generateMoves();
-    static void visDebug(unsigned long pos);
 
-	static std::array<std::uint64_t, 64> getMoves() { return moves; }
+	static std::array<std::uint64_t, 64> getMoves() { return queenMoves; }
 
   private:
-    static std::array<std::uint64_t, 64> moves;
+	static std::array<std::uint64_t, 64> queenMoves;
 };

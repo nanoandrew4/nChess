@@ -1,10 +1,10 @@
 #include "pieces/Knight.hpp"
 #include "Board.hpp"
 
-std::array<std::uint64_t, 64> Knight::moves;
+std::array<std::uint64_t, 64> Knight::knightMoves;
 
 void Knight::initialize() {
-    moves = generateMoves();
+    knightMoves = generateMoves();
 }
 
 std::array<std::uint64_t, 64> Knight::generateMoves()
@@ -36,9 +36,4 @@ std::array<std::uint64_t, 64> Knight::generateMoves()
     }
 
     return moves;
-}
-
-void Knight::visDebug(unsigned long pos)
-{
-    Board::visDebug(moves.at(pos));
 }

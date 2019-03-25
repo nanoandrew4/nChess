@@ -1,11 +1,11 @@
 #include "pieces/Bishop.hpp"
 #include "Board.hpp"
 
-std::array<std::uint64_t, 64> Bishop::moves;
+std::array<std::uint64_t, 64> Bishop::bishopMoves;
 
 void Bishop::initialize()
 {
-    moves = generateMoves();
+    bishopMoves = generateMoves();
 }
 
 std::array<std::uint64_t, 64> Bishop::generateMoves()
@@ -29,13 +29,8 @@ std::array<std::uint64_t, 64> Bishop::generateMoves()
         for (int j = i - 9; i % 8 != 0 && (j + 1) % 8 != 0 && j >= 0; j -= 9)
             move += baseBit << (std::uint64_t) j;
 
-        moves.at(i) = move;
+        moves.at(static_cast<unsigned long>(i)) = move;
     }
 
     return moves;
-}
-
-void Bishop::visDebug(unsigned long pos)
-{
-    Board::visDebug(moves.at(pos));
 }

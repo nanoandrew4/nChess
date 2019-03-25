@@ -3,10 +3,10 @@
 #include "pieces/Bishop.hpp"
 #include "Board.hpp"
 
-std::array<std::uint64_t, 64> Queen::moves;
+std::array<std::uint64_t, 64> Queen::queenMoves;
 
 void Queen::initialize() {
-    moves = generateMoves();
+    queenMoves = generateMoves();
 }
 
 std::array<std::uint64_t, 64> Queen::generateMoves() {
@@ -19,8 +19,4 @@ std::array<std::uint64_t, 64> Queen::generateMoves() {
         moves.at(i) = rookMoves.at(i) | bishopMoves.at(i);
 
     return moves;
- }
-
- void Queen::visDebug(unsigned long pos) {
-     Board::visDebug(moves.at(pos));
  }

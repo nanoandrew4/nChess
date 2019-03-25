@@ -10,9 +10,9 @@ public:
 
   static void initialize();
   static std::array<std::uint64_t, 64> generateMoves();
-  static void visDebug(unsigned long pos);
-  const static std::array<std::uint64_t, 64> getMoves() { return moves; }
+
+	const static std::array<std::uint64_t, 64> getMoves() { return rookMoves; }
 
 private:
-  static std::array<std::uint64_t, 64> moves;
+	static std::array<std::uint64_t, 64> rookMoves;
 };

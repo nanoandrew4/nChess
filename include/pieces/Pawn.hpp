@@ -11,13 +11,12 @@ public:
   static void initialize();
 
 	static std::array<std::uint64_t, 64> generateMoves(bool white);
-  static void visDebug(int pos, bool white);
 
-	static std::array<std::uint64_t, 64> getWhiteMoves() { return whiteMoves; }
+	static std::array<std::uint64_t, 64> getWhiteMoves() { return whitePawnMoves; }
 
-	static std::array<std::uint64_t, 64> getBlackMoves() { return blackMoves; }
+	static std::array<std::uint64_t, 64> getBlackMoves() { return blackPawnMoves; }
 
 private:
-	static std::array<std::uint64_t, 64> blackMoves;
-	static std::array<std::uint64_t, 64> whiteMoves;
+	static std::array<std::uint64_t, 64> blackPawnMoves;
+	static std::array<std::uint64_t, 64> whitePawnMoves;
 };

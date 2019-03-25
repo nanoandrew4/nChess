@@ -3,12 +3,12 @@
 
 #include <bitset>
 
-std::array<std::uint64_t, 64> King::whiteMoves;
-std::array<std::uint64_t, 64> King::blackMoves;
+std::array<std::uint64_t, 64> King::whiteKingMoves;
+std::array<std::uint64_t, 64> King::blackKingMoves;
 
 void King::initialize() {
-    whiteMoves = generateMoves(true);
-    blackMoves = generateMoves(false);
+    whiteKingMoves = generateMoves(true);
+    blackKingMoves = generateMoves(false);
 }
 
 std::array<std::uint64_t, 64> King::generateMoves(bool white) {
@@ -50,8 +50,4 @@ std::array<std::uint64_t, 64> King::generateMoves(bool white) {
         moves.at(59) += (bitShiftingBaseVal << 61L) + (bitShiftingBaseVal << 57L);
 
     return moves;
-}
-
-void King::visDebug(bool white, unsigned long pos) {
-    Board::visDebug(white ? whiteMoves.at(pos) : blackMoves.at(pos));
 }

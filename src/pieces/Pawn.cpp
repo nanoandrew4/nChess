@@ -1,13 +1,13 @@
 #include "pieces/Pawn.hpp"
 #include "Board.hpp"
 
-std::array<std::uint64_t, 64> Pawn::whiteMoves;
-std::array<std::uint64_t, 64> Pawn::blackMoves;
+std::array<std::uint64_t, 64> Pawn::whitePawnMoves;
+std::array<std::uint64_t, 64> Pawn::blackPawnMoves;
 
 void Pawn::initialize()
 {
-    whiteMoves = generateMoves(true);
-    blackMoves = generateMoves(false);
+    whitePawnMoves = generateMoves(true);
+    blackPawnMoves = generateMoves(false);
 }
 
 std::array<std::uint64_t, 64> Pawn::generateMoves(bool white)
@@ -27,9 +27,4 @@ std::array<std::uint64_t, 64> Pawn::generateMoves(bool white)
     }
 
     return moves;
-}
-
-void Pawn::visDebug(int pos, bool white)
-{
-    Board::visDebug(white ? whiteMoves.at(pos) : blackMoves.at(pos));
 }

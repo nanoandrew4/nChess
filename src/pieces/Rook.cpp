@@ -1,10 +1,10 @@
 #include "pieces/Rook.hpp"
 #include "Board.hpp"
 
-std::array<std::uint64_t, 64> Rook::moves;
+std::array<std::uint64_t, 64> Rook::rookMoves;
 
 void Rook::initialize () {
-    moves = generateMoves();
+    rookMoves = generateMoves();
 }
 
 std::array<std::uint64_t, 64> Rook::generateMoves() {
@@ -26,8 +26,3 @@ std::array<std::uint64_t, 64> Rook::generateMoves() {
 
     return moves;
 }
-
-void Rook::visDebug(unsigned long pos) {
-    Board::visDebug(moves.at(pos));
-}
-
