@@ -15,7 +15,7 @@ public:
 private:
 	unsigned long moveNumber = 0, totalNumOfMoves = 0, matchNumber = 0;
 	long maxMoveTime = 0;
-	long minMoveTime = 1u << 31u;
+	long minMoveTime = 1UL << 31UL;
 
 	void printMetrics();
 

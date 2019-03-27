@@ -34,8 +34,7 @@ public:
 	static std::array<std::uint64_t, 64> generateMoves();
 
 	/**
-	 * Returns the array of bitboards representing all the possible moves for a bishop. initialize() must be called
-	 * before attempting to retrieve the array.
+	 * Returns the array of bitboards representing all the possible moves for a bishop. initialize() must be called before attempting to retrieve the array.
 	 *
 	 * @return Array of bitboards representing all the possible moves for a bishop
 	 */

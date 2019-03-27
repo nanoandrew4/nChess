@@ -14,7 +14,6 @@ void King::initialize() {
 std::array<std::uint64_t, 64> King::generateMoves(bool white) {
     bool canPlaceRight, canPlaceLeft, canPlaceAbove, canPlaceBelow;
     std::array<std::uint64_t, 64> moves{};
-    std::uint64_t bitShiftingBaseVal = 1;
 
     for (unsigned long i = 0; i < 64; ++i) {
         std::uint64_t move = 0;
@@ -25,29 +24,29 @@ std::array<std::uint64_t, 64> King::generateMoves(bool white) {
         canPlaceBelow = i >= 8;
 
         if (canPlaceRight)
-            move += bitShiftingBaseVal << (i - 1);
+	        move += 1UL << (i - 1);
         if (canPlaceLeft)
-            move += bitShiftingBaseVal << (i + 1);
-        if (canPlaceAbove) 
-            move += bitShiftingBaseVal << (i + 8);
+	        move += 1UL << (i + 1);
+        if (canPlaceAbove)
+	        move += 1UL << (i + 8);
         if (canPlaceBelow)
-            move += bitShiftingBaseVal << (i - 8);
+	        move += 1UL << (i - 8);
         if (canPlaceRight && canPlaceAbove)
-            move += bitShiftingBaseVal << (i + 7);
+	        move += 1UL << (i + 7);
         if (canPlaceLeft && canPlaceAbove)
-            move += bitShiftingBaseVal << (i + 9);
+	        move += 1UL << (i + 9);
         if (canPlaceLeft && canPlaceBelow)
-            move += bitShiftingBaseVal << (i - 7);
+	        move += 1UL << (i - 7);
         if (canPlaceRight && canPlaceBelow)
-            move += bitShiftingBaseVal << (i - 9);
+	        move += 1UL << (i - 9);
 
         moves.at(i) = move;
     }
 
     if (white)
-        moves.at(3) += (bitShiftingBaseVal << 1L) + (bitShiftingBaseVal << 5L);
+	    moves.at(3) += (1UL << 1L) + (1UL << 5L);
     else
-        moves.at(59) += (bitShiftingBaseVal << 61L) + (bitShiftingBaseVal << 57L);
+	    moves.at(59) += (1LU << 61L) + (1LU << 57L);
 
     return moves;
 }

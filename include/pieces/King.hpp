@@ -27,7 +27,8 @@ public:
 	 * 0 0 0 0 0 0 0 0 <br>
 	 *
 	 * The above bitboard would be for a king at position 18 (f3) (positions are counted from bottom right to top
-	 * left, so a1 is position 8, h1 is position 0, and so on)
+	 * left, so a1 is position 8, h1 is position 0, and so on). The bitboard also includes castling moves, where
+	 * appropriate.
 	 *
 	 * @return Array of bitboards containing all the possible moves at each square on the board for a king.
 	 */
@@ -35,8 +36,7 @@ public:
 
 	/**
 	 * Returns the array of bitboards representing all the possible moves for a white king. initialize() must be called
-	 * before attempting to retrieve the array. This includes castling moves, which is why the move bitboards are
-	 * exclusive to the white king.
+	 * before attempting to retrieve the array.
 	 *
 	 * @return Array of bitboards representing all the possible moves for a white king
 	 */
@@ -44,8 +44,7 @@ public:
 
 	/**
 	 * Returns the array of bitboards representing all the possible moves for a black king. initialize() must be called
-	 * before attempting to retrieve the array. This includes castling moves, which is why the move bitboards are
-	 * exclusive to the black king.
+	 * before attempting to retrieve the array.
 	 *
 	 * @return Array of bitboards representing all the possible moves for a black king
 	 */

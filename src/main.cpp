@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
 	initBitBoards();
 
 	if (argc < 2) {
-		std::cout << "Missing arguments" << std::endl;
+		std::cout << "Missing arguments!!" << std::endl;
 		return 1;
 	}
 

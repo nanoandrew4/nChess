@@ -15,8 +15,6 @@ public:
 
 	~Board() = default;
 
-	static void visDebug(std::uint64_t board);
-
 	void displayBoard() const;
 
 	bool makeMove(std::uint64_t startPos, std::uint64_t endPos, char promotionPiece);
@@ -61,7 +59,6 @@ private:
 
 	unsigned long currentTurn = 0;
 
-	const static std::uint64_t baseBit = 1;
 	std::uint64_t *currBB = &whiteBB;
 
 	std::vector<Board> boardHistory;
