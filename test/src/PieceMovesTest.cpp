@@ -62,7 +62,7 @@ void PieceMovesTest::test() {
 }
 
 bool PieceMovesTest::makeMoveAndCheck(const std::array<char, 5> &move, Board &board) {
-	const std::vector<std::uint64_t> setGlobalBitsBeforeMove = Board::getSetBits(board.getGlobalBB());
+	const std::vector<short> setGlobalBitsBeforeMove = Board::getSetBits(board.getGlobalBB());
 
 	const std::uint64_t startPos = (7u - (move[0] - 97)) + (8 * (move[1] - 49));
 	const std::uint64_t endPos = (7u - (move[2] - 97)) + (8 * (move[3] - 49));
@@ -70,9 +70,9 @@ bool PieceMovesTest::makeMoveAndCheck(const std::array<char, 5> &move, Board &bo
 
 	const bool movementSuccessful = UCIParser::parseAndMove(board, move);
 
-	const std::vector<std::uint64_t> setBits = Board::getSetBits(board.getGlobalBB());
+	const std::vector<short> setBits = Board::getSetBits(board.getGlobalBB());
 	bool startPosUnset = true, endPosSet = false;
-	for (std::uint64_t bitPos : setBits) {
+	for (short bitPos : setBits) {
 		if (bitPos == startPos)
 			startPosUnset = false;
 		else if (bitPos == endPos)

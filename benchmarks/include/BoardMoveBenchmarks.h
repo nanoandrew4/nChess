@@ -17,8 +17,9 @@ private:
 	long maxMoveTime = 0;
 	long minMoveTime = 1UL << 31UL;
 
-	void printMetrics();
+	static constexpr bool visualBenchmark = true;
 
+	void printMetrics();
 	void runBenchmark(std::ifstream &stream);
 
 	void printTimePerMove(std::string preTimeText, double avgTimePerMove);

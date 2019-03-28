@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 		} else if (strMatch(argv[i], "play")) {
 			playMatch();
 			return 0;
-		} else if (strMatch(argv[i], "--lastcore"))
+		} else if (strMatch(argv[i], "--last-core"))
 			setCPUAffinity();
 	}
 

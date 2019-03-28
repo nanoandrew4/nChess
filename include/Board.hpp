@@ -11,31 +11,74 @@ class Board {
 public:
 	Board();
 
-	explicit Board(const Board *b);
-
 	~Board() = default;
 
+	/**
+	 * Copy ctor. Copies all fields to a new instance of this class, except for the move history and currentTurn.
+	 * @param b Board to copy to
+	 */
+	explicit Board(const Board *b);
+
+	/**
+	 * Prints a visual representation of the board to the screen. Four boards are drawn, one which is the actual game
+	 * board, one containing the white pieces, one containing the black pieces, and a representation of the global
+	 * bitboard.
+	 */
 	void displayBoard() const;
 
-	bool makeMove(std::uint64_t startPos, std::uint64_t endPos, char promotionPiece);
+	/**
+	 * Attempts to make a move for the current player on the board. If the move is illegal, an error will be displayed.
+	 *
+	 * @param startPos The current position of the piece to move. Must be a value between 0 and 63 (both inclusive),
+	 * where 0 is the bottom right corner of the board, and 63 is the top left corner
+	 * @param endPos The target destination for the piece. Must be a value between 0 and 63 (both inclusive),
+	 * where 0 is the bottom right corner of the board, and 63 is the top left corner
+	 * @param promotionPiece Only applicable when a pawn promotion occurs, and must be one of the following values: 'Q',
+	 * 'R','N','R'.
+	 * @return True if the move the move was performed, false if it was not due to it being illegal
+	 */
+	bool makeMove(const std::uint64_t &startPos, const std::uint64_t &endPos, char promotionPiece);
 
+	/**
+	 * Returns the current turn on the board, with 0 being the first turn
+	 *
+	 * @return Current turn on the board
+	 */
 	unsigned long getCurrentTurn() const { return currentTurn; }
 
-	static std::vector<std::uint64_t> getSetBits(std::uint64_t bb);
+	/**
+	 * Returns a vector containing the bit positions that are set for the given bitboard.
+	 *
+	 * @param bb Bitboard which to extract the set bits for
+	 * @return Vector containing the positions of the set bits in the supplied bitboard
+	 */
+	static std::vector<short> getSetBits(std::uint64_t bb);
 
+	/**
+	 * Returns the global bitboard
+	 *
+	 * @return The global bitboard
+	 */
 	std::uint64_t getGlobalBB() const { return globalBB; }
 
+	/**
+	 * Returns true if white has won the match, or false otherwise
+	 *
+	 * @return Whether white has won the match
+	 */
 	bool hasWhiteWon() { return whiteWins; }
 
+	/**
+	 * Returns true if the match has ended, or false otherwise.
+	 *
+	 * @return Whether the match has ended
+	 */
 	bool isMatchOver() { return matchOver; }
 
-	void setDebug(bool debug) { Board::debug = debug; }
-
-	bool isDebugEnable() { return debug; }
-
 private:
+
 	/*
-	 * All positions are little-endian. These values set the initial positions for the bit boards
+	 * All positions are little-endian. These values set the initial positions for the bit boards.
 	 */
 	std::uint64_t globalBB = 0xffff00000000ffff; // Might not be that useful... Consider removing in favor or orig color BBs
 	std::uint64_t movedBB = 0; // For tracking king/rook moves for castling and pawn moves for en passant
@@ -81,25 +124,25 @@ private:
 
 	void undoMove();
 
-	bool isValidDiagMove(std::uint64_t startPos, std::uint64_t endPos);
+	bool isValidDiagMove(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
-	bool isValidStraightMove(std::uint64_t startPos, std::uint64_t endPos);
+	bool isValidStraightMove(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
-	bool canCastle(std::uint64_t startPos, std::uint64_t endPos);
+	bool canCastle(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
 	bool enPassant(std::uint64_t endPos);
 
-	bool movePawnIfLegal(std::uint64_t startPos, std::uint64_t endPos);
+	bool movePawnIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
-	bool moveRookIfLegal(std::uint64_t startPos, std::uint64_t endPos);
+	bool moveRookIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
-	bool moveKnightIfLegal(std::uint64_t startPos, std::uint64_t endPos);
+	bool moveKnightIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
-	bool moveBishopIfLegal(std::uint64_t startPos, std::uint64_t endPos);
+	bool moveBishopIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
-	bool moveQueenIfLegal(std::uint64_t startPos, std::uint64_t endPos);
+	bool moveQueenIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
-	bool moveKingIfLegal(std::uint64_t startPos, std::uint64_t endPos);
+	bool moveKingIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
-	void movePieceOnBB(std::uint64_t startPos, std::uint64_t endPos, std::uint64_t &pieceBB);
+	void movePieceOnBB(const std::uint64_t &startPos, const std::uint64_t &endPos, std::uint64_t &pieceBB);
 };

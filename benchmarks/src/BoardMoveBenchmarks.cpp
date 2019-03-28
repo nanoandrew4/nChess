@@ -16,17 +16,21 @@ void BoardMoveBenchmarks::benchmark(const std::string &testFile) {
 		return;
 	}
 
-	std::cout << "Benchmark is starting, this may take a while depending on the size of the benchmarking file..."
-	          << std::endl;
+	if (visualBenchmark)
+		std::cout << "Benchmark is starting, this may take a while depending on the size of the benchmarking file..."
+		          << std::endl;
 
-	startWallTimer();
+	if (visualBenchmark)
+		startWallTimer();
 	runBenchmark(matchesFile);
-	stopWallTimer();
+	if (visualBenchmark) {
+		stopWallTimer();
 
-	std::cout << "\rBenchmark has finished running, " << matchNumber << " matches were played, " << totalNumOfMoves
-	          << " moves" << std::endl;
+		std::cout << "\rBenchmark has finished running, " << matchNumber << " matches were played, " << totalNumOfMoves
+		          << " moves" << std::endl;
 
-	printMetrics();
+		printMetrics();
+	}
 }
 
 void BoardMoveBenchmarks::runBenchmark(std::ifstream &stream) {
@@ -36,7 +40,7 @@ void BoardMoveBenchmarks::runBenchmark(std::ifstream &stream) {
 		Board board;
 		char promotionPiece = ' ';
 
-		if (matchNumber % 10000 == 0)
+		if (matchNumber % 100000 == 0 && visualBenchmark)
 			std::cout << "\rMatches played: " << matchNumber << std::flush;
 
 		std::array<char, 5> move{};
@@ -49,16 +53,19 @@ void BoardMoveBenchmarks::runBenchmark(std::ifstream &stream) {
 					promotionPiece -= 32; // Make uppercase
 			}
 
-			startNanoTimer();
+			if (visualBenchmark)
+				startNanoTimer();
 			board.makeMove(startPos, endPos, promotionPiece);
-			stopNanoTimer();
-			accumulateNanoTime();
+			if (visualBenchmark) {
+				stopNanoTimer();
+				accumulateNanoTime();
 
-			if (getElapsedNanoseconds() < minMoveTime)
-				minMoveTime = getElapsedNanoseconds();
-			if (getElapsedNanoseconds() > maxMoveTime)
-				maxMoveTime = getElapsedNanoseconds();
-			moveNumber++;
+				if (getElapsedNanoseconds() < minMoveTime)
+					minMoveTime = getElapsedNanoseconds();
+				if (getElapsedNanoseconds() > maxMoveTime)
+					maxMoveTime = getElapsedNanoseconds();
+				moveNumber++;
+			}
 		}
 
 		totalNumOfMoves += moveNumber;
