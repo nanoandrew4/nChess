@@ -2,13 +2,11 @@ cmake_minimum_required(VERSION 3.13)
 project(nChess)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS_DEBUG "-g -fno-omit-frame-pointer")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -fno-omit-frame-pointer -DVISUAL_BECHMARK -DPRINT_DEBUG_MESSAGES")
 #set(CMAKE_CXX_FLAGS_DEBUG "-g -fno-omit-frame-pointer -D_GLIBCXX_DEBUG")
-set(CMAKE_CXX_FLAGS_RELEASE "-Ofast")
+set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -DVISUAL_BECHMARK")
 set(CMAKE_CXX_FLAGS_PERFANALISYS "-Ofast -fno-omit-frame-pointer")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
-
-#option(VISUAL_BECHMARK "Determines whether the benchmarks should print benchmark stats" On)
 
 include_directories(include)
 include_directories(include/pieces)

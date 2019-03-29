@@ -9,19 +9,13 @@
 #include "pieces/Pawn.hpp"
 #include "pieces/Bishop.hpp"
 
-bool Board::debug = false;
-
-Board::Board() {
-	this->boardHistory.reserve(100);
-}
+Board::Board() = default;
 
 Board::Board(const Board *b) {
 	clone(b, this);
 }
 
 void Board::clone(const Board *src, Board *dest) {
-	dest->globalBB = src->globalBB;
-
 	dest->whiteBB = src->whiteBB;
 	dest->whitePawnBB = src->whitePawnBB;
 	dest->whiteRookBB = src->whiteRookBB;
@@ -58,7 +52,6 @@ void Board::displayBoard() const {
 	loadPiecesToVisBoard(board, blackQueenBB, 0, "bQ");
 	loadPiecesToVisBoard(board, blackKingBB, 0, "bK");
 
-	loadPiecesToVisBoard(board, globalBB, 64, "gP");
 	loadPiecesToVisBoard(board, whiteBB, 128, "ww");
 	loadPiecesToVisBoard(board, blackBB, 192, "bb");
 
@@ -91,7 +84,7 @@ void Board::displayBoard() const {
 
 void
 Board::loadPiecesToVisBoard(std::vector<std::string> &board, const std::uint64_t bitBoard, const std::uint64_t offset,
-                            const std::string displayValue) {
+                            const std::string &displayValue) {
 	std::vector<short> pieces = getSetBits(bitBoard);
 	for (short piece : pieces)
 		board.at(piece + offset) = displayValue;
@@ -101,9 +94,14 @@ std::vector<short> Board::getSetBits(const std::uint64_t bb) {
 	std::vector<short> setBits;
 	setBits.reserve(16);
 	for (short i = 0; i < 64; ++i)
-		if ((bb & (1ul << i)) != 0)
+		if ((bb & (1ul << static_cast<std::uint64_t>(i))) != 0)
 			setBits.push_back(i);
 	return setBits;
+}
+
+void Board::endTurn() {
+	++currentTurn; // Turn changed before saving board, so that if move is undone the turn is given to the right player
+	currBB = &((currentTurn & 1UL) == 0 ? whiteBB : blackBB);
 }
 
 bool Board::promotePawn(char promotionPiece, std::uint64_t pos) {
@@ -122,10 +120,10 @@ bool Board::promotePawn(char promotionPiece, std::uint64_t pos) {
 	return true;
 }
 
-bool Board::removeCapturedPiece(std::uint64_t piecePos) {
+bool Board::removeCapturedPiece(const std::uint64_t &piecePos) {
 	if (debug)
 		std::cout << "Removing captured piece" << std::endl;
-	std::uint64_t bitPos = (1ul << piecePos);
+	const std::uint64_t bitPos = (1ul << piecePos);
 
 	if ((bitPos & (*currBB == whiteBB ? blackPawnBB : whitePawnBB)) != 0)
 		(*currBB == whiteBB ? blackPawnBB : whitePawnBB) -= bitPos;
@@ -140,8 +138,7 @@ bool Board::removeCapturedPiece(std::uint64_t piecePos) {
 	else if ((bitPos & (*currBB == whiteBB ? blackKingBB : whiteKingBB)) != 0) {
 		// Undo move that led to king being taken, and continue search
 		// Maybe track occurrences to see if it is worth handling some other way
-		std::cout << "King capture attempted, skipping move in tree..." << std::endl;
-		undoMove();
+		throw std::logic_error("King capture attempted, should never happen");
 		return false;
 	} else {
 		std::cout << "There is no piece to remove..." << std::endl;
@@ -149,7 +146,7 @@ bool Board::removeCapturedPiece(std::uint64_t piecePos) {
 	}
 
 	(*currBB == whiteBB ? blackBB : whiteBB) -= bitPos;
-	globalBB -= bitPos;
+//	globalBB -= bitPos;
 	return true;
 }
 
@@ -175,10 +172,10 @@ bool Board::makeMove(const std::uint64_t &startPos, const std::uint64_t &endPos,
 	std::uint64_t startPosBit = 1ul << startPos;
 	if ((whitePawnBB & startPosBit) != 0 || (blackPawnBB & startPosBit) != 0) {
 		legal = movePawnIfLegal(startPos, endPos);
-		if (legal && (endPos >> 3u == 7 || endPos >> 3u == 0))
+		if (legal && (endPos / 8u == 7 || endPos / 8u == 0))
 			if (!promotePawn(promotionPiece, endPos)) {
 				std::cout << "No promotion piece selected" << std::endl;
-				undoMove();
+				throw std::logic_error(&"Could not promote piece: "[promotionPiece]);
 				return false;
 			}
 	} else if ((whiteRookBB & startPosBit) != 0 || (blackRookBB & startPosBit) != 0)
@@ -208,28 +205,10 @@ bool Board::makeMove(const std::uint64_t &startPos, const std::uint64_t &endPos,
 	return true;
 }
 
-void Board::endTurn() {
-	++currentTurn; // Turn changed before saving board, so that if move is undone the turn is given to the right player
-	boardHistory.emplace_back(this); // Copies the board into a vector, so that the state can be restored if needed
-	currBB = &((currentTurn & 1UL) == 0 ? whiteBB : blackBB);
-}
-
-void Board::undoMove() {
-	std::cout << "Undoing move" << std::endl;
-	if (!boardHistory.empty()) {
-		Board prevBoardState = boardHistory.back();
-		boardHistory.pop_back();
-		clone(&prevBoardState, this);
-	} else {
-		std::cout << "Undo should not have happened, no moves to undo" << std::endl; // For debugging purposes
-	}
-}
-
 void Board::movePieceOnBB(const std::uint64_t &startPos, const std::uint64_t &endPos, std::uint64_t &pieceBB) {
 	const std::uint64_t movePieceOp = ((1ul << endPos) - (1ul << startPos));
 	*currBB += movePieceOp;
 	pieceBB += movePieceOp;
-	globalBB += movePieceOp;
 }
 
 bool Board::enPassant(std::uint64_t endPos) {
@@ -237,7 +216,8 @@ bool Board::enPassant(std::uint64_t endPos) {
 	const std::uint64_t potentialEnPassantCapturePos = isWhiteTurn ? endPos - 8u : endPos + 8u;
 
 	const std::uint64_t captureBitPos = 1ul << potentialEnPassantCapturePos;
-	if (((isWhiteTurn ? blackPawnBB : whitePawnBB) & captureBitPos) != 0 && (movedBB & captureBitPos) != 0) {
+	if (((isWhiteTurn ? blackPawnBB : whitePawnBB) & captureBitPos) != 0 &&
+	    ((whiteBB | blackBB) & captureBitPos) != 0) {
 		removeCapturedPiece(potentialEnPassantCapturePos);
 		return true;
 	}
@@ -253,7 +233,7 @@ bool Board::movePawnIfLegal(const std::uint64_t &startPos, const std::uint64_t &
 	     (1ul << endPos)) == 0) {
 		std::cout << "Illegal pawn move" << std::endl;
 		return false;
-	} else if (posDiff == 8 && (globalBB & (1ul << endPos)) != 0) {
+	} else if (posDiff == 8 && ((whiteBB | blackBB) & (1ul << endPos)) != 0) {
 		std::cout << "Attempting to move pawn atop another piece while moving vertically" << std::endl;
 		return false;
 	} else if ((posDiff == 7 || posDiff == 9) && (((isWhiteTurn ? blackBB : whiteBB) & (1ul << endPos)) ==
@@ -273,7 +253,7 @@ bool Board::movePawnIfLegal(const std::uint64_t &startPos, const std::uint64_t &
 bool Board::isValidStraightMove(const std::uint64_t &startPos, const std::uint64_t &endPos) {
 	const int step = ((endPos - startPos) % 8 == 0) ? (startPos < endPos ? 8 : -8) : (startPos < endPos ? 1 : -1);
 	for (std::uint64_t pos = startPos + step; pos != endPos; pos += step) {
-		if ((globalBB & (1ul << pos)) != 0) {
+		if (((whiteBB | blackBB) & (1ul << pos)) != 0) {
 			std::cout << "There is a piece between the starting and ending positions" << std::endl;
 			return false;
 		}
@@ -314,7 +294,7 @@ bool Board::isValidDiagMove(const std::uint64_t &startPos, const std::uint64_t &
 		step = ~step + 1;
 
 	for (std::uint64_t i = startPos + step; i != endPos; i += step) {
-		if ((globalBB & (1ul << i)) != 0) {
+		if (((whiteBB | blackBB) & (1ul << i)) != 0) {
 			std::cout << "Illegal diagonal move, there is a piece between the starting and ending position" <<
 			          std::endl;
 			return false;
@@ -348,20 +328,20 @@ bool Board::moveQueenIfLegal(const std::uint64_t &startPos, const std::uint64_t 
 }
 
 bool Board::canCastle(const std::uint64_t &startPos, const std::uint64_t &endPos) {
-	const bool isWhiteTurn = (currentTurn & 1) == 0;
+	const bool isWhiteTurn = currentTurn % 2 == 0;
 	const bool isKingSideCastle = startPos - endPos == 2;
 
 	if (((1ul << startPos) & movedBB) != 0)
 		return false;
 
 	if (isKingSideCastle)
-		return isWhiteTurn ? ((1ul & movedBB) == 0) : ((1ul << 56) & movedBB) == 0;
+		return isWhiteTurn ? ((1ul & movedBB) == 0) : ((1ul << 56ul) & movedBB) == 0;
 	else
-		return isWhiteTurn ? ((1ul << 7) & movedBB) == 0 : ((1ul << 63) & movedBB) == 0;
+		return isWhiteTurn ? ((1ul << 7ul) & movedBB) == 0 : ((1ul << 63ul) & movedBB) == 0;
 }
 
 bool Board::moveKingIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos) {
-	const bool isWhiteTurn = (currentTurn & 1) == 0;
+	const bool isWhiteTurn = currentTurn % 2 == 0;
 	const std::array<std::uint64_t, 64> moves = isWhiteTurn ? King::getWhiteMoves() : King::getBlackMoves();
 	const bool isCastlingMove = (endPos - startPos == 2 || startPos - endPos == 2);
 
@@ -391,7 +371,7 @@ bool Board::moveKingIfLegal(const std::uint64_t &startPos, const std::uint64_t &
 	if ((startPos == 3 || startPos == 58) && ((1ul << startPos) & movedBB) == 0)
 		movedBB += (1ul << startPos);
 
-	movePieceOnBB(startPos, endPos, (currentTurn & 1) == 0 ? whiteKingBB : blackKingBB);
+	movePieceOnBB(startPos, endPos, (currentTurn & 1ul) == 0 ? whiteKingBB : blackKingBB);
 
 	return true;
 }

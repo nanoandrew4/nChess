@@ -59,7 +59,7 @@ public:
 	 *
 	 * @return The global bitboard
 	 */
-	std::uint64_t getGlobalBB() const { return globalBB; }
+	std::uint64_t getGlobalBB() const { return (whiteBB | blackBB); }
 
 	/**
 	 * Returns true if white has won the match, or false otherwise
@@ -80,7 +80,6 @@ private:
 	/*
 	 * All positions are little-endian. These values set the initial positions for the bit boards.
 	 */
-	std::uint64_t globalBB = 0xffff00000000ffff; // Might not be that useful... Consider removing in favor or orig color BBs
 	std::uint64_t movedBB = 0; // For tracking king/rook moves for castling and pawn moves for en passant
 
 	std::uint64_t whiteBB = 0x000000000000ffff;
@@ -100,29 +99,29 @@ private:
 	std::uint64_t blackQueenBB = 0x1000000000000000;
 	std::uint64_t blackKingBB = 0x0800000000000000;
 
-	unsigned long currentTurn = 0;
-
 	std::uint64_t *currBB = &whiteBB;
 
-	std::vector<Board> boardHistory;
+	unsigned short currentTurn = 0;
 
 	bool matchOver = false;
 	bool whiteWins = false;
 
-	static bool debug;
+#ifdef PRINT_DEBUG_MESSAGES
+	static constexpr bool debug = true;
+#else
+	static constexpr bool debug = false;
+#endif
 
 	void clone(const Board *src, Board *dest);
 
 	static void loadPiecesToVisBoard(std::vector<std::string> &board, std::uint64_t bitBoard, std::uint64_t offset,
-	                                 std::string displayValue);
+	                                 const std::string &displayValue);
 
 	bool promotePawn(char promotionPiece, std::uint64_t pos);
 
-	bool removeCapturedPiece(std::uint64_t piecePos);
+	bool removeCapturedPiece(const std::uint64_t &piecePos);
 
 	void endTurn();
-
-	void undoMove();
 
 	bool isValidDiagMove(const std::uint64_t &startPos, const std::uint64_t &endPos);
 

@@ -17,7 +17,11 @@ private:
 	long maxMoveTime = 0;
 	long minMoveTime = 1UL << 31UL;
 
+#ifdef VISUAL_BECHMARK
 	static constexpr bool visualBenchmark = true;
+#else
+	static constexpr bool visualBenchmark = false;
+#endif
 
 	void printMetrics();
 	void runBenchmark(std::ifstream &stream);
