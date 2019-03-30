@@ -43,7 +43,7 @@ public:
 	 *
 	 * @return Array of bitboards representing all the possible moves for a white pawn
 	 */
-	static std::array<std::uint64_t, 64> getWhiteMoves() { return whitePawnMoves; }
+	static std::array<std::uint64_t, 64> *getWhiteMoves() { return &whitePawnMoves; }
 
 	/**
 	 * Returns the array of bitboards representing all the possible moves for a black pawn. initialize() must be called
@@ -51,7 +51,7 @@ public:
 	 *
 	 * @return Array of bitboards representing all the possible moves for a black pawn
 	 */
-	static std::array<std::uint64_t, 64> getBlackMoves() { return blackPawnMoves; }
+	static std::array<std::uint64_t, 64> *getBlackMoves() { return &blackPawnMoves; }
 
 private:
 	Pawn() = default;

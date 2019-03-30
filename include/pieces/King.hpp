@@ -40,7 +40,7 @@ public:
 	 *
 	 * @return Array of bitboards representing all the possible moves for a white king
 	 */
-	static std::array<std::uint64_t, 64> getWhiteMoves() { return whiteKingMoves; }
+	static std::array<std::uint64_t, 64> *getWhiteMoves() { return &whiteKingMoves; }
 
 	/**
 	 * Returns the array of bitboards representing all the possible moves for a black king. initialize() must be called
@@ -48,7 +48,7 @@ public:
 	 *
 	 * @return Array of bitboards representing all the possible moves for a black king
 	 */
-	static std::array<std::uint64_t, 64> getBlackMoves() { return blackKingMoves; }
+	static std::array<std::uint64_t, 64> *getBlackMoves() { return &blackKingMoves; }
 
 private:
 	King() = default;

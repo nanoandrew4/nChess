@@ -39,7 +39,7 @@ public:
 	 *
 	 * @return Array of bitboards representing all the possible moves for a queen
 	 */
-	static std::array<std::uint64_t, 64> getMoves() { return queenMoves; }
+	static std::array<std::uint64_t, 64> *getMoves() { return &queenMoves; }
 
 private:
 	Queen() = default;

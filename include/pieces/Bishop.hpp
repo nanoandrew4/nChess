@@ -38,7 +38,7 @@ public:
 	 *
 	 * @return Array of bitboards representing all the possible moves for a bishop
 	 */
-	static std::array<std::uint64_t, 64> getMoves() { return bishopMoves; }
+	constexpr static std::array<std::uint64_t, 64> *getMoves() { return &bishopMoves; }
 private:
 	Bishop() = default;
 

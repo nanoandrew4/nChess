@@ -33,7 +33,7 @@ public:
 	 */
 	static std::array<std::uint64_t, 64> generateMoves();
 
-	static std::array<std::uint64_t, 64> getMoves() { return knightMoves; }
+	static std::array<std::uint64_t, 64> *getMoves() { return &knightMoves; }
 
 private:
 	Knight() = default;

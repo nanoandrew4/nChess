@@ -39,7 +39,7 @@ public:
 	   *
 	   * @return Array of bitboards representing all the possible moves for a rook
 	   */
-	const static std::array<std::uint64_t, 64> getMoves() { return rookMoves; }
+	const static std::array<std::uint64_t, 64> *getMoves() { return &rookMoves; }
 
 private:
 	Rook() = default;
