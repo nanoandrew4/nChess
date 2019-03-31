@@ -10,15 +10,20 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -fno-omit-frame-pointer -DVISUAL_BECHMARK -DPRINT_
 #set(CMAKE_CXX_FLAGS_DEBUG "-g -fno-omit-frame-pointer -D_GLIBCXX_DEBUG")
 
 # Target for optimal runtime performance and maintaining full functionality
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fuse-ld=lld -flto=full -gline-tables-only -DVISUAL_BECHMARK")
-#set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fuse-ld=lld -flto=full -gline-tables-only -fprofile-sample-use=nChess-rel.prof
-#-DVISUAL_BECHMARK ")
+if (ENABLE_PGO)
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fuse-ld=lld -flto=full -gline-tables-only -fprofile-sample-use=nChess-rel.prof -DVISUAL_BECHMARK")
+else ()
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fuse-ld=lld -flto=full -gline-tables-only -DVISUAL_BECHMARK")
+endif ()
 
 # Target for performance testing, silences and removes benchmark data gathering, so as to run benchmarks as fast as
 # possible
-set(CMAKE_CXX_FLAGS_PROFILING "-O3 -fuse-ld=lld -flto=full -gline-tables-only -fno-omit-frame-pointer")
-#set(CMAKE_CXX_FLAGS_PROFILING "-O3 -fuse-ld=lld -flto=full -fno-omit-frame-pointer -gline-tables-only
-#-fprofile-sample-use=nChess-prof.prof")
+if (ENABLE_PGO)
+    set(CMAKE_CXX_FLAGS_PROFILING "-O3 -fuse-ld=lld -flto=full -fno-omit-frame-pointer -gline-tables-only -fprofile-sample-use=nChess-prof.prof")
+else ()
+    set(CMAKE_CXX_FLAGS_PROFILING "-O3 -fuse-ld=lld -flto=full -gline-tables-only -fno-omit-frame-pointer")
+endif ()
+
 
 # Common compiler flags for all targets
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
@@ -26,7 +31,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
 include_directories(include)
 include_directories(include/pieces)
 
-add_executable(
+add_executable(nChess
         include/pieces/Bishop.hpp
         include/pieces/King.hpp
         include/pieces/Knight.hpp
