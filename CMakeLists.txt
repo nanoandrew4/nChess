@@ -21,7 +21,8 @@ endif ()
 if (ENABLE_PGO)
     set(CMAKE_CXX_FLAGS_PROFILING "-O3 -fuse-ld=lld -flto=full -fno-omit-frame-pointer -gline-tables-only -fprofile-sample-use=nChess-prof.prof")
 else ()
-    set(CMAKE_CXX_FLAGS_PROFILING "-O3 -fuse-ld=lld -flto=full -gline-tables-only -fno-omit-frame-pointer")
+    set(CMAKE_CXX_FLAGS_PROFILING "-O3 -fuse-ld=lld -flto=full -fno-omit-frame-pointer -g")
+    #    set(CMAKE_CXX_FLAGS_PROFILING "-O3 -fuse-ld=lld -flto=full -gline-tables-only -fno-omit-frame-pointer")
 endif ()
 
 

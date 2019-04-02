@@ -9,8 +9,6 @@
 #include "pieces/Pawn.hpp"
 #include "pieces/Bishop.hpp"
 
-Board::Board() = default;
-
 Board::Board(const Board *b) {
 	clone(b, this);
 }
@@ -82,16 +80,15 @@ void Board::displayBoard() const {
 	          << std::endl;
 }
 
-void
-Board::loadPiecesToVisBoard(std::vector<std::string> &board, const std::uint64_t bitBoard, const std::uint64_t offset,
-                            const std::string &displayValue) {
-	std::vector<short> pieces = getSetBits(bitBoard);
+void Board::loadPiecesToVisBoard(std::vector<std::string> &board, const std::uint64_t &bitBoard,
+                                 const std::uint64_t &offset, const std::string &displayValue) {
+	const std::vector<std::uint8_t> pieces = getSetBits(bitBoard);
 	for (short piece : pieces)
 		board.at(piece + offset) = displayValue;
 }
 
-std::vector<short> Board::getSetBits(const std::uint64_t bb) {
-	std::vector<short> setBits;
+std::vector<std::uint8_t> Board::getSetBits(const std::uint64_t &bb) {
+	std::vector<std::uint8_t> setBits;
 	setBits.reserve(16);
 	for (short i = 0; i < 64; ++i)
 		if ((bb & (1ul << static_cast<std::uint64_t>(i))) != 0)
@@ -101,12 +98,10 @@ std::vector<short> Board::getSetBits(const std::uint64_t bb) {
 
 void Board::endTurn() {
 	++currentTurn; // Turn changed before saving board, so that if move is undone the turn is given to the right player
-	currBB = &((currentTurn & 1UL) == 0 ? whiteBB : blackBB);
+	currBB = &((currentTurn % 2) == 0 ? whiteBB : blackBB);
 }
 
 bool Board::promotePawn(char promotionPiece, std::uint64_t pos) {
-	(*currBB == whiteBB ? whitePawnBB : blackPawnBB) -= (1ul << pos);
-
 	if (promotionPiece == 'Q')
 		(*currBB == whiteBB ? whiteQueenBB : blackQueenBB) += (1ul << pos);
 	else if (promotionPiece == 'R')
@@ -117,11 +112,14 @@ bool Board::promotePawn(char promotionPiece, std::uint64_t pos) {
 		(*currBB == whiteBB ? whiteBishopBB : blackBishopBB) += (1ul << pos);
 	else
 		return false;
+
+	(*currBB == whiteBB ? whitePawnBB : blackPawnBB) -= (1ul << pos);
+
 	return true;
 }
 
 bool Board::removeCapturedPiece(const std::uint64_t &piecePos) {
-	if (debug)
+	if constexpr (debug)
 		std::cout << "Removing captured piece" << std::endl;
 	const std::uint64_t bitPos = (1ul << piecePos);
 
@@ -146,12 +144,11 @@ bool Board::removeCapturedPiece(const std::uint64_t &piecePos) {
 	}
 
 	(*currBB == whiteBB ? blackBB : whiteBB) -= bitPos;
-//	globalBB -= bitPos;
 	return true;
 }
 
 bool Board::makeMove(const std::uint64_t &startPos, const std::uint64_t &endPos, const char promotionPiece) {
-	if (debug)
+	if constexpr (debug)
 		std::cout << "Startpos: " << startPos << " endPos: " << endPos << std::endl;
 	if (startPos > 63 || endPos > 63) {
 		std::cout << "Piece is moving off the board..." << std::endl;
@@ -169,15 +166,14 @@ bool Board::makeMove(const std::uint64_t &startPos, const std::uint64_t &endPos,
 	}
 
 	bool legal;
-	std::uint64_t startPosBit = 1ul << startPos;
+	const std::uint64_t startPosBit = 1ul << startPos;
 	if ((whitePawnBB & startPosBit) != 0 || (blackPawnBB & startPosBit) != 0) {
 		legal = movePawnIfLegal(startPos, endPos);
-		if (legal && (endPos / 8u == 7 || endPos / 8u == 0))
-			if (!promotePawn(promotionPiece, endPos)) {
-				std::cout << "No promotion piece selected" << std::endl;
-				throw std::logic_error(&"Could not promote piece: "[promotionPiece]);
-				return false;
-			}
+		if (legal && (endPos / 8u == 7 || endPos / 8u == 0) && !promotePawn(promotionPiece, endPos)) {
+			std::cout << "No promotion piece selected" << std::endl;
+			throw std::logic_error(&"Could not promote piece: "[promotionPiece]);
+			return false;
+		}
 	} else if ((whiteRookBB & startPosBit) != 0 || (blackRookBB & startPosBit) != 0)
 		legal = moveRookIfLegal(startPos, endPos);
 	else if ((whiteKnightBB & startPosBit) != 0 || (blackKnightBB & startPosBit) != 0)
@@ -211,7 +207,7 @@ void Board::movePieceOnBB(const std::uint64_t &startPos, const std::uint64_t &en
 	pieceBB += movePieceOp;
 }
 
-bool Board::enPassant(std::uint64_t endPos) {
+bool Board::enPassant(const std::uint64_t &endPos) {
 	const bool isWhiteTurn = *currBB == whiteBB;
 	const std::uint64_t potentialEnPassantCapturePos = isWhiteTurn ? endPos - 8u : endPos + 8u;
 
@@ -227,7 +223,7 @@ bool Board::enPassant(std::uint64_t endPos) {
 
 bool Board::movePawnIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos) {
 	const std::uint64_t posDiff = endPos > startPos ? endPos - startPos : startPos - endPos;
-	const bool isWhiteTurn = *currBB == whiteBB;
+	const bool isWhiteTurn = currentTurn % 2 == 0;
 
 	if (((isWhiteTurn ? Pawn::getWhiteMoves()->at(startPos) : Pawn::getBlackMoves()->at(startPos)) &
 	     (1ul << endPos)) == 0) {
@@ -265,7 +261,7 @@ bool Board::moveRookIfLegal(const std::uint64_t &startPos, const std::uint64_t &
 	if (((Rook::getMoves()->at(startPos)) & (1ul << endPos)) != 0 && isValidStraightMove(startPos, endPos)) {
 		movePieceOnBB(startPos, endPos, (*currBB == whiteBB ? whiteRookBB : blackRookBB));
 
-		bool rookStartPos = startPos == 0 || startPos == 7 || startPos == 54 || startPos == 63;
+		const bool rookStartPos = startPos == 0 || startPos == 7 || startPos == 54 || startPos == 63;
 		if ((((1ul << startPos) & movedBB) == 0) && rookStartPos)
 			movedBB += (1ul << startPos);
 		return true;
@@ -287,9 +283,8 @@ bool Board::moveKnightIfLegal(const std::uint64_t &startPos, const std::uint64_t
 }
 
 bool Board::isValidDiagMove(const std::uint64_t &startPos, const std::uint64_t &endPos) {
-	const bool isStartXSmallerThanEndX = endPos % 8u > startPos % 8u;
-	int step = ((isStartXSmallerThanEndX && endPos > startPos) || (!isStartXSmallerThanEndX && endPos < startPos)) ? 9
-	                                                                                                               : 7;
+	const bool issXSmallerThanEX = endPos % 8u > startPos % 8u;
+	int step = ((issXSmallerThanEX && endPos > startPos) || (!issXSmallerThanEX && endPos < startPos)) ? 9 : 7;
 	if (endPos < startPos)
 		step = ~step + 1;
 
