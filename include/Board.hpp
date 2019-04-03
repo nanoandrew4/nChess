@@ -178,19 +178,84 @@ private:
 	 */
 	bool canCastle(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
+	/**
+	 * Determines the legality of an en passant move, based on the positioning of the pawns.
+	 */
 	bool enPassant(const std::uint64_t &endPos);
 
+	/**
+	 * Attempts to move a pawn from the specified position to the target position. If the move is not determined to be
+	 * illegal, it will be performed, but captured pieces are not removed inside this function, that is left for
+	 * makeMove() to handle.
+	 *
+	 * @param startPos Position where the selected pawn is at
+	 * @param endPos Position where the pawn should be moved to
+	 * @return True if the move was legal and the pawn was moved, false if the move was illegal
+	 */
 	bool movePawnIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
+	/**
+	 * Attempts to move a rook from the specified position to the target position. If the move is not determined to be
+	 * illegal, it will be performed, but captured pieces are not removed inside this function, that is left for
+	 * makeMove() to handle.
+	 *
+	 * @param startPos Position where the selected rook is at
+	 * @param endPos Position where the rook should be moved to
+	 * @return True if the move was legal and the rook was moved, false if the move was illegal
+	 */
 	bool moveRookIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
+	/**
+	 * Attempts to move a knight from the specified position to the target position. If the move is not determined to be
+	 * illegal, it will be performed, but captured pieces are not removed inside this function, that is left for
+	 * makeMove() to handle.
+	 *
+	 * @param startPos Position where the selected knight is at
+	 * @param endPos Position where the knight should be moved to
+	 * @return True if the move was legal and the knight was moved, false if the move was illegal
+	 */
 	bool moveKnightIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
+	/**
+	 * Attempts to move a bishop from the specified position to the target position. If the move is not determined to be
+	 * illegal, it will be performed, but captured pieces are not removed inside this function, that is left for
+	 * makeMove() to handle.
+	 *
+	 * @param startPos Position where the selected bishop is at
+	 * @param endPos Position where the bishop should be moved to
+	 * @return True if the move was legal and the bishop was moved, false if the move was illegal
+	 */
 	bool moveBishopIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
+	/**
+	 * Attempts to move a queen from the specified position to the target position. If the move is not determined to be
+	 * illegal, it will be performed, but captured pieces are not removed inside this function, that is left for
+	 * makeMove() to handle.
+	 *
+	 * @param startPos Position where the selected queen is at
+	 * @param endPos Position where the queen should be moved to
+	 * @return True if the move was legal and the queen was moved, false if the move was illegal
+	 */
 	bool moveQueenIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
+	/**
+	 * Attempts to move a king from the specified position to the target position. If the move is not determined to be
+	 * illegal, it will be performed, but captured pieces are not removed inside this function, that is left for
+	 * makeMove() to handle.
+	 *
+	 * @param startPos Position where the selected king is at
+	 * @param endPos Position where the king should be moved to
+	 * @return True if the move was legal and the king was moved, false if the move was illegal
+	 */
 	bool moveKingIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
+	/**
+	 * Moves a piece on the specified bitboard, as well as the current players bitboard, from the specified starting
+	 * position, to the specified ending position.
+	 *
+	 * @param startPos Position where the piece to move is at
+	 * @param endPos Position where the piece to move is at
+	 * @param pieceBB Bitboard corresponding to the piece that is to be moved
+	 */
 	void movePieceOnBB(const std::uint64_t &startPos, const std::uint64_t &endPos, std::uint64_t &pieceBB);
 };

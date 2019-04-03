@@ -192,7 +192,6 @@ bool Board::makeMove(const std::uint64_t &startPos, const std::uint64_t &endPos,
 	if (!legal)
 		return false;
 
-	legal = true; // Reset to check legality of piece capture
 	if (((*currBB == whiteBB ? blackBB : whiteBB) & (1ul << endPos)) != 0)
 		legal = removeCapturedPiece(endPos);
 
@@ -211,6 +210,7 @@ bool Board::enPassant(const std::uint64_t &endPos) {
 	const bool isWhiteTurn = *currBB == whiteBB;
 	const std::uint64_t potentialEnPassantCapturePos = isWhiteTurn ? endPos - 8u : endPos + 8u;
 
+	// TODO: CHECK THAT TO BE CAPTURED PIECE JUST MOVED TWO SQUARES
 	const std::uint64_t captureBitPos = 1ul << potentialEnPassantCapturePos;
 	if (((isWhiteTurn ? blackPawnBB : whitePawnBB) & captureBitPos) != 0 &&
 	    ((whiteBB | blackBB) & captureBitPos) != 0) {
