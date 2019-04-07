@@ -11,17 +11,19 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -fno-omit-frame-pointer -DVISUAL_BECHMARK -DPRINT_
 
 # Target for optimal runtime performance and maintaining full functionality
 if (ENABLE_PGO)
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fuse-ld=lld -flto=full -gline-tables-only -fprofile-sample-use=nChess-rel.prof -DVISUAL_BECHMARK")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fuse-ld=lld -flto=full -gline-tables-only -march=native
+    -fprofile-sample-use=nChess-rel.prof -DVISUAL_BECHMARK")
 else ()
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fuse-ld=lld -flto=full -gline-tables-only -DVISUAL_BECHMARK")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fuse-ld=lld -flto=full -gline-tables-only -DVISUAL_BECHMARK -march=native")
 endif ()
 
 # Target for performance testing, silences and removes benchmark data gathering, so as to run benchmarks as fast as
 # possible
 if (ENABLE_PGO)
-    set(CMAKE_CXX_FLAGS_PROFILING "-O3 -fuse-ld=lld -flto=full -fno-omit-frame-pointer -gline-tables-only -fprofile-sample-use=nChess-prof.prof")
+    set(CMAKE_CXX_FLAGS_PROFILING "-O3 -fuse-ld=lld -flto=full -fno-omit-frame-pointer -march=native
+    -gline-tables-only -fprofile-sample-use=nChess-prof.prof")
 else ()
-    set(CMAKE_CXX_FLAGS_PROFILING "-O3 -fuse-ld=lld -flto=full -fno-omit-frame-pointer -g")
+    set(CMAKE_CXX_FLAGS_PROFILING "-O3 -fuse-ld=lld -flto=full -fno-omit-frame-pointer -g -march=native")
     #    set(CMAKE_CXX_FLAGS_PROFILING "-O3 -fuse-ld=lld -flto=full -gline-tables-only -fno-omit-frame-pointer")
 endif ()
 

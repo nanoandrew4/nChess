@@ -9,11 +9,10 @@ class Benchmark {
 public:
 	void startWallTimer() { wallStart = std::chrono::steady_clock::now(); };
 
-	void startNanoTimer() { cpuStart = std::chrono::high_resolution_clock::now(); };
+	void startCPUTimer() { startCPUCycles = rdtsc(); };
 
-	void stopNanoTimer() {
-		elapsedNanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>
-				(std::chrono::high_resolution_clock::now() - cpuStart).count();
+	void stopCPUTimer() {
+		elapsedCycles = rdtsc() - startCPUCycles;
 	};
 
 	void stopWallTimer() {
@@ -21,17 +20,17 @@ public:
 				std::chrono::steady_clock::now() - wallStart).count();
 	};
 
-	void accumulateNanoTime() { accumulatedNanoseconds += elapsedNanoseconds; }
+	void accumulateCPUCycles() { accumulatedCycles += elapsedCycles; }
 
 	void accumulateWallTime() { accumulatedWallSeconds += elapsedWallSeconds; }
 
 	double getElapsedWallSeconds() const { return elapsedWallSeconds; }
 
-	long getElapsedNanoseconds() const { return elapsedNanoseconds; }
+	long getElapsedCPUCycles() const { return elapsedCycles; }
 
 	double getAccumulatedWallSeconds() const { return accumulatedWallSeconds; }
 
-	long getAccumulatedCPUSeconds() const { return accumulatedNanoseconds; }
+	long getAccumulatedCPUCycles() const { return accumulatedCycles; }
 
 	static void printFormattedRuntime(const double secs) {
 		std::cout << (int) secs / 3600 << "h " << ((int) secs % 3600) / 60 << "m "
@@ -40,14 +39,20 @@ public:
 	}
 
 private:
-	std::chrono::high_resolution_clock::time_point cpuStart;
+	std::uint64_t startCPUCycles = 0;
 	std::chrono::steady_clock::time_point wallStart;
 
 	double elapsedWallSeconds = 0;
-	long elapsedNanoseconds = 0;
+	std::uint64_t elapsedCycles = 0;
 
 	double accumulatedWallSeconds = 0;
-	long accumulatedNanoseconds = 0;
+	std::uint64_t accumulatedCycles = 0;
+
+	inline std::uint64_t rdtsc() {
+		std::uint32_t low, high;
+		asm volatile ("rdtsc" : "=a" (low), "=d" (high));
+		return (std::uint64_t) high << 32ul | low;
+	}
 };
 
 #endif //NCHESS_BENCHMARK_H

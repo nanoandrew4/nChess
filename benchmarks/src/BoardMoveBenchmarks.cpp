@@ -54,16 +54,16 @@ void BoardMoveBenchmarks::runBenchmark(std::ifstream &stream) {
 			}
 
 			if (visualBenchmark)
-				startNanoTimer();
+				startCPUTimer();
 			board.makeMove(startPos, endPos, promotionPiece);
 			if (visualBenchmark) {
-				stopNanoTimer();
-				accumulateNanoTime();
+				stopCPUTimer();
+				accumulateCPUCycles();
 
-				if (getElapsedNanoseconds() < minMoveTime)
-					minMoveTime = getElapsedNanoseconds();
-				if (getElapsedNanoseconds() > maxMoveTime)
-					maxMoveTime = getElapsedNanoseconds();
+				if (getElapsedCPUCycles() < minMoveCycles)
+					minMoveCycles = getElapsedCPUCycles();
+				if (getElapsedCPUCycles() > maxMoveCycles)
+					maxMoveCycles = getElapsedCPUCycles();
 				moveNumber++;
 			}
 		}
@@ -75,34 +75,13 @@ void BoardMoveBenchmarks::runBenchmark(std::ifstream &stream) {
 }
 
 void BoardMoveBenchmarks::printMetrics() {
-	const double cpuTimeInSecs = getAccumulatedCPUSeconds() / pow(10, 9);
-	std::cout << "CPU time taken by board.makeMove() is: ";
-	printFormattedRuntime(cpuTimeInSecs);
-
 	std::cout << "Wall time taken to run benchmark: ";
 	printFormattedRuntime(getElapsedWallSeconds());
 
-	printTimePerMove("Avg time per move: ", cpuTimeInSecs / totalNumOfMoves);
-	printTimePerMove("Lowest move time: ", minMoveTime / pow(10, 9));
-	printTimePerMove("Highest move time: ", maxMoveTime / pow(10, 9));
-}
-
-void BoardMoveBenchmarks::printTimePerMove(std::string preTimeText, double avgTimePerMove) {
-	double normalizedTimePerMove = avgTimePerMove;
-	while (normalizedTimePerMove < 1.0 && normalizedTimePerMove != 0.0)
-		normalizedTimePerMove *= 1000;
-
-	std::cout << preTimeText << normalizedTimePerMove << " " << getSubsecondTimeUnit(avgTimePerMove)
+	std::cout << "CPU cycles taken by board.makeMove() are: " << getAccumulatedCPUCycles() / pow(10, 9) << " billion"
 	          << std::endl;
-}
-
-std::string BoardMoveBenchmarks::getSubsecondTimeUnit(double secs) {
-	if (secs * pow(10, 3) > 1.0)
-		return "ms";
-	else if (secs * pow(10, 6) > 1.0)
-		return "us";
-	else if (secs * pow(10, 9) > 1.0)
-		return "ns";
-	else
-		return "??";
+	std::cout << "Avg CPU cycles per move: " << getAccumulatedCPUCycles() / static_cast<double>(totalNumOfMoves)
+	          << std::endl;
+	std::cout << "Min CPU cycles per move: " << minMoveCycles << std::endl;
+	std::cout << "Max CPU cycles per move: " << maxMoveCycles << std::endl;
 }
