@@ -4,8 +4,9 @@ implementation (given that my previous chess engine was not great). Active devel
 but will be continued as soon as those end.
 
 ## Compilation:
-To compile the program, you can use the script located at (scripts/build/build-release.sh). The program will be built
- at the project root, inside a new directory called 'build/release'. It will attempt to use
+To compile the program, you can use the script located at 
+[scripts/build/build-release.sh](https://github.com/nanoandrew4/nChess/blob/master/scripts/build/build-release.sh). 
+The program will be built at the project root, inside a new directory called 'build/release'. It will attempt to use
 clang to compile, so if you do not have clang available on your system, you can change the compiler by modifying the 
 build script (this should be a simple change at the top of the script). c++17 features are used throughout the code,
 so make sure you are rocking a relatively new version of your compiler.
@@ -33,14 +34,15 @@ must also be supplied with a PGN file to read from, with the same format as the 
 evaluation benchmark.
 
 To run the benchmarks, run the command './nChess bench {benchmarkType} {benchmarkFile}'. For example, if making use 
-of the sample file that can be downloaded using (scripts/extras/downloadBenchPGN.sh), the command for 
-benchmarking the legality evaluator would be './nChess bench move extras/benchmark/megaChessDB.pgn'
+of the sample file that can be downloaded using 
+[scripts/extras/downloadBenchPGN.sh](https://github.com/nanoandrew4/nChess/tree/master/scripts/extras), the command 
+for benchmarking the legality evaluator would be './nChess bench move extras/benchmark/megaChessDB.pgn'
 
 Additionally, the '--last-core' flag could be supplied after the executable, and before the benchmark type, to run 
 the benchmarks on the last core available. This can be useful for getting consistent results, especially if the last 
 core is disabled so the OS cannot make use of it, and it can be used exclusively by this program. A script to disable
-(and re-enable) the last core of the CPU is available in the (scripts/bench/) folder (for Linux only, use at your own 
-peril, after each script is run the machine must be rebooted).
+(and re-enable) the last core of the CPU is available in the [scripts/bench/](https://github.com/nanoandrew4/nChess/tree/master/scripts/bench) 
+folder (for Linux only, use at your own peril, after each script is run the machine must be rebooted).
 
 ### Testing:
 The program also has a test suite to run a PGN file through to find invalid moves (or bugs in the legality evaluator,
@@ -65,8 +67,9 @@ Find yourself a nice PGN file that you wish to use for benchmarking. Make sure i
 games, otherwise the benchmark may show skewed results. Now go download and compile (if necessary):
 [pgn-extract](https://www.cs.kent.ac.uk/people/staff/djb/pgn-extract/). Run the program on your PGN file with
 the following flags: '-Wuci -s --noresults --nocomments --nobadresults'. Depending on your file size, this may take a
-while. Once that is done, run the 'scripts/cleanupUCIFile.awk' script on the file that pgn-extract created, and pipe
-that output into a new file. This final file is what may be used for running the benchmark suite. 
+while. Once that is done, run [scripts/cleanupUCIFile.awk](https://github.com/nanoandrew4/nChess/blob/master/scripts/cleanupUCIFile.awk) 
+on the file that pgn-extract created, and pipe that output into a new file. This final file is what may be used for 
+running the benchmark suite. 
 
 If your file should not work, you have replicated the steps correctly and have verified that the file is in fact 
 valid, go ahead and open an issue so the matter can be resolved.
