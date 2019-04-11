@@ -1,5 +1,5 @@
 #include <io/UCIParser.hpp>
-#include "../include/PieceMovesTest.h"
+#include "test/PieceMovesTest.h"
 
 #include <fstream>
 #include <chrono>

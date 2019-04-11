@@ -1,4 +1,4 @@
-#include "../include/Test.h"
+#include "test/Test.h"
 
 bool Test::testing = false;
 std::vector<TestFailData> Test::testFailures;

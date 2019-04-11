@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cd ${SCRIPT_DIR}
+
 echo "Overwriting default grub file at /etc/default/grub"
 echo "Only the target line will be overwriten, the rest will be kept. The target line contains: GRUB_CMDLINE_LINUX=..."
 echo "A copy of the current file will be made to the current directory, in case anything were to go awry..."

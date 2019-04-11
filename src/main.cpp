@@ -6,10 +6,10 @@
 #include "pieces/Bishop.hpp"
 #include "pieces/Queen.hpp"
 #include "io/UCIParser.hpp"
-#include "../test/include/Test.h"
-#include "../test/include/PieceMovesTest.h"
-#include "../benchmarks/include/BoardMoveBenchmarks.h"
-#include "../benchmarks/include/MoveReaderBenchmark.h"
+#include "test/Test.h"
+#include "test/PieceMovesTest.h"
+#include "benchmark/BoardMoveBenchmarks.h"
+#include "benchmark/MoveReaderBenchmark.h"
 #include <thread>
 
 #ifdef __linux__

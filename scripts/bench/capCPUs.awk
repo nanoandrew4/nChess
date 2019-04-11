@@ -1,3 +1,5 @@
+# This awk file is employed by hideLastCore.sh to edit the /etc/default/grub
+
 BEGIN {
     numCPUs = ""
 }

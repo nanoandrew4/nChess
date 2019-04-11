@@ -53,11 +53,11 @@ add_executable(nChess
         src/Board.cpp
         src/main.cpp
         src/io/MoveReader.cpp
-        src/io/UCIParser.cpp test/include/Test.h test/src/PieceMovesTest.cpp test/include/PieceMovesTest.h test/src/Test.cpp
-        benchmarks/include/BoardMoveBenchmarks.h
-        benchmarks/include/MoveReaderBenchmark.h
-        benchmarks/include/Benchmark.h
-        benchmarks/src/BoardMoveBenchmarks.cpp
-        benchmarks/src/MoveReaderBenchmark.cpp
-        benchmarks/src/Benchmark.cpp
+        src/io/UCIParser.cpp include/test/Test.h src/test/PieceMovesTest.cpp include/test/PieceMovesTest.h src/test/Test.cpp
+        include/benchmark/BoardMoveBenchmarks.h
+        include/benchmark/MoveReaderBenchmark.h
+        include/benchmark/Benchmark.h
+        src/benchmark/BoardMoveBenchmarks.cpp
+        src/benchmark/MoveReaderBenchmark.cpp
+        src/benchmark/Benchmark.cpp
         )

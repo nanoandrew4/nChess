@@ -2,7 +2,7 @@
 #include <io/MoveReader.h>
 #include <iostream>
 #include <cmath>
-#include "../include/MoveReaderBenchmark.h"
+#include "benchmark/MoveReaderBenchmark.h"
 
 void MoveReaderBenchmark::benchmark(const std::string &movesFilePath) {
 	std::ifstream movesFile(movesFilePath);

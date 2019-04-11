@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <io/MoveReader.h>
 #include <cmath>
-#include "../include/BoardMoveBenchmarks.h"
+#include "benchmark/BoardMoveBenchmarks.h"
 
 void BoardMoveBenchmarks::benchmark(const std::string &testFile) {
 	std::ifstream matchesFile(testFile);
