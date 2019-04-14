@@ -21,8 +21,8 @@
 void setCPUAffinity() {
 	cpu_set_t set;
 	CPU_ZERO(&set);        // clear cpu mask
-	CPU_SET(std::thread::hardware_concurrency() - 1, &set);      // set cpu 0
-	sched_setaffinity(0, sizeof(cpu_set_t), &set);  // 0 is the calling process
+	CPU_SET(std::thread::hardware_concurrency() - 1, &set);      // set cpu n - 1
+	sched_setaffinity(0, sizeof(cpu_set_t), &set);
 }
 
 #else

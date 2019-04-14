@@ -15,7 +15,7 @@ so make sure you are rocking a relatively new version of your compiler.
 Currently the program simply allows you to enter moves, and play against yourself, while checking the legality of 
 the various moves before executing the move. Although the end goal is to have a full fledged chess engine, the work 
 on the project up until now has focused mainly on getting a fast legality checking mechanism that the engine will 
-employ to search and evaluate moves.
+employ to search for and evaluate moves.
 
 To simply play a game against yourself, run the command './nChess play'.
 

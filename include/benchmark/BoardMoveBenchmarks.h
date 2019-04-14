@@ -6,10 +6,12 @@
 
 class BoardMoveBenchmarks : public Benchmark {
 public:
-	BoardMoveBenchmarks() = default;
-
-	~BoardMoveBenchmarks() = default;
-
+	/**
+	 * Benchmarks the speed at which nChess can check the legality of moves and perform them on a board.
+	 * Uses runBenchmark() underneath, and also prints progress data to stdout.
+	 *
+	 * @param testFile File from which to read moves to evaluate
+	 */
 	void benchmark(const std::string &testFile);
 
 private:
@@ -23,7 +25,19 @@ private:
 	static constexpr bool visualBenchmark = false;
 #endif
 
+	/**
+	 * Prints metrics collected during the benchmarking phase to stdout, such as number of moves/matches evaluated
+	 * and the average speed of each evaluation.
+	 */
 	void printMetrics();
+
+	/**
+	 * Runs the benchmark move evaluation benchmark, as described in the benchmark() function. Basically calls
+	 * Board.makeMove() for each of the moves in the supplied file, while measuring the number of CPU cycles the
+	 * evaluation takes.
+	 *
+	 * @param stream Input stream opened from the file containing the moves to benchmark with
+	 */
 	void runBenchmark(std::ifstream &stream);
 };
 

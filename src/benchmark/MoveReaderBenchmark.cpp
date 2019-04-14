@@ -12,7 +12,8 @@ void MoveReaderBenchmark::benchmark(const std::string &movesFilePath) {
 		return;
 	}
 
-	std::cout << "Starting file processing benchmark... " << std::endl;
+	if constexpr(visualBenchmark)
+		std::cout << "Starting file processing benchmark... " << std::endl;
 
 	MoveReader moveReader(movesFile);
 	startWallTimer();
@@ -20,12 +21,13 @@ void MoveReaderBenchmark::benchmark(const std::string &movesFilePath) {
 		moveReader.readMove();
 	stopWallTimer();
 
-	std::cout << "Finished benchmark, file read took: ";
-	printFormattedRuntime(getElapsedWallSeconds());
+	if constexpr (visualBenchmark) {
+		std::cout << "Finished benchmark, file read took: ";
+		printFormattedRuntime(getElapsedWallSeconds());
 
-	printProcessedDataSize(moveReader.getBytesRead());
-	printThroughput(moveReader.getBytesRead(), getElapsedWallSeconds());
-
+		printProcessedDataSize(moveReader.getBytesRead());
+		printThroughput(moveReader.getBytesRead(), getElapsedWallSeconds());
+	}
 	movesFile.close();
 }
 
