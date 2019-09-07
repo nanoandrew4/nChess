@@ -44,7 +44,7 @@ public:
 	 *
 	 * @return Current turn on the board
 	 */
-	unsigned long getCurrentTurn() const { return currentTurn; }
+	[[nodiscard]] unsigned short getCurrentTurn() const { return currentTurn; }
 
 	/**
 	 * Returns a vector containing the bit positions that are set for the given bitboard.
@@ -59,7 +59,7 @@ public:
 	 *
 	 * @return The global bitboard
 	 */
-	std::uint64_t getGlobalBB() const { return (whiteBB | blackBB); }
+	[[nodiscard]] std::uint64_t getGlobalBB() const { return (whiteBB | blackBB); }
 
 	/**
 	 * Returns true if white has won the match, or false otherwise
@@ -183,6 +183,8 @@ private:
 	 */
 	bool enPassant(const std::uint64_t &endPos);
 
+	bool isPawnMoveLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
+
 	/**
 	 * Attempts to move a pawn from the specified position to the target position. If the move is not determined to be
 	 * illegal, it will be performed, but captured pieces are not removed inside this function, that is left for
@@ -193,6 +195,8 @@ private:
 	 * @return True if the move was legal and the pawn was moved, false if the move was illegal
 	 */
 	bool movePawnIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
+
+	bool isRookMoveLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
 	/**
 	 * Attempts to move a rook from the specified position to the target position. If the move is not determined to be
@@ -205,6 +209,8 @@ private:
 	 */
 	bool moveRookIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
+	bool isKnightMoveLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
+
 	/**
 	 * Attempts to move a knight from the specified position to the target position. If the move is not determined to be
 	 * illegal, it will be performed, but captured pieces are not removed inside this function, that is left for
@@ -215,6 +221,8 @@ private:
 	 * @return True if the move was legal and the knight was moved, false if the move was illegal
 	 */
 	bool moveKnightIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
+
+	bool isBishopMoveLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
 	/**
 	 * Attempts to move a bishop from the specified position to the target position. If the move is not determined to be
@@ -227,6 +235,8 @@ private:
 	 */
 	bool moveBishopIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
+	bool isQueenMoveLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
+
 	/**
 	 * Attempts to move a queen from the specified position to the target position. If the move is not determined to be
 	 * illegal, it will be performed, but captured pieces are not removed inside this function, that is left for
@@ -238,6 +248,8 @@ private:
 	 */
 	bool moveQueenIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
+	bool isKingMoveLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
+
 	/**
 	 * Attempts to move a king from the specified position to the target position. If the move is not determined to be
 	 * illegal, it will be performed, but captured pieces are not removed inside this function, that is left for
@@ -248,6 +260,8 @@ private:
 	 * @return True if the move was legal and the king was moved, false if the move was illegal
 	 */
 	bool moveKingIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
+
+	bool isSquareUnderAttack(const std::uint64_t &pos, const bool isWhiteTurn);
 
 	/**
 	 * Moves a piece on the specified bitboard, as well as the current players bitboard, from the specified starting
