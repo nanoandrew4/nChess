@@ -17,7 +17,7 @@ public:
 	 * Copy ctor. Copies all fields to a new instance of this class, except for the move history and currentTurn.
 	 * @param b Board to copy to
 	 */
-	explicit Board(const Board *b);
+	explicit Board(Board *b);
 
 	/**
 	 * Prints a visual representation of the board to the screen. Four boards are drawn, one which is the actual game
@@ -107,6 +107,8 @@ private:
 	bool matchOver = false;
 	bool whiteWins = false;
 
+	std::vector<Board> boardHistory;
+
 #ifdef PRINT_DEBUG_MESSAGES
 	static constexpr bool debug = true;
 #else
@@ -143,6 +145,8 @@ private:
 	 * @return True if the piece was successfully removed, false otherwise
 	 */
 	bool removeCapturedPiece(const std::uint64_t &piecePos);
+
+	void undoMove();
 
 	void endTurn();
 

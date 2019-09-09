@@ -55,7 +55,12 @@ void BoardMoveBenchmarks::runBenchmark(std::ifstream &stream) {
 
 			if (visualBenchmark)
 				startCPUTimer();
-			board.makeMove(startPos, endPos, promotionPiece);
+			const bool legal = board.makeMove(startPos, endPos, promotionPiece);
+			if (__glibc_unlikely(!legal)) {
+				std::cout << "Move that was illegal: " << startPos << " to " << endPos << std::endl;
+				board.displayBoard();
+				return;
+			}
 			if (visualBenchmark) {
 				stopCPUTimer();
 				accumulateCPUCycles();
