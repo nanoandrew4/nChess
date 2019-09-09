@@ -32,7 +32,7 @@ public:
 	 *
 	 * @return Array of bitboards containing all the possible moves at each square on the board for a king.
 	 */
-	static std::array<std::uint64_t, 64> generateMoves(bool white);
+	static std::array<std::uint64_t, 64> generateMoves(bool white, bool includeCastleMoves);
 
 	/**
 	 * Returns the array of bitboards representing all the possible moves for a white king. initialize() must be called
@@ -50,6 +50,8 @@ public:
 	 */
 	static std::array<std::uint64_t, 64> *getBlackMoves() { return &blackKingMoves; }
 
+	static std::array<std::uint64_t, 64> *getNonCastleKingMoves() { return &nonCastleKingMoves; }
+
 private:
 	King() = default;
 
@@ -57,4 +59,5 @@ private:
 
 	static std::array<std::uint64_t, 64> whiteKingMoves;
 	static std::array<std::uint64_t, 64> blackKingMoves;
+	static std::array<std::uint64_t, 64> nonCastleKingMoves;
 };

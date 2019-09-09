@@ -187,7 +187,7 @@ private:
 	 */
 	bool enPassant(const std::uint64_t &endPos);
 
-	bool isPawnMoveLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
+	bool isPawnMoveLegal(const std::uint64_t &startPos, const std::uint64_t &endPos, bool isWhiteTurn);
 
 	/**
 	 * Attempts to move a pawn from the specified position to the target position. If the move is not determined to be
@@ -265,7 +265,7 @@ private:
 	 */
 	bool moveKingIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos);
 
-	bool isSquareUnderAttack(const std::uint64_t &pos, const bool isWhiteTurn);
+	bool isSquareUnderAttack(const std::uint64_t &pos, bool isWhiteTurn);
 
 	/**
 	 * Moves a piece on the specified bitboard, as well as the current players bitboard, from the specified starting

@@ -239,20 +239,16 @@ bool Board::enPassant(const std::uint64_t &endPos) {
 	return false;
 }
 
-bool Board::isPawnMoveLegal(const std::uint64_t &startPos, const std::uint64_t &endPos) {
+bool Board::isPawnMoveLegal(const std::uint64_t &startPos, const std::uint64_t &endPos, const bool isWhiteTurn) {
 	const std::uint64_t posDiff = endPos > startPos ? endPos - startPos : startPos - endPos;
-	const bool isWhiteTurn = currentTurn % 2 == 0;
 
-	if (((isWhiteTurn ? Pawn::getWhiteMoves()->at(startPos) : Pawn::getBlackMoves()->at(startPos)) &
-	     (1ul << endPos)) == 0) {
-		std::cout << "Illegal pawn move" << std::endl;
+	if (((isWhiteTurn ? Pawn::getWhiteMoves()->at(startPos) : Pawn::getBlackMoves()->at(startPos))
+	     & (1ul << endPos)) == 0) {
 		return false;
 	} else if (posDiff == 8 && ((whiteBB | blackBB) & (1ul << endPos)) != 0) {
-		std::cout << "Attempting to move pawn atop another piece while moving vertically" << std::endl;
 		return false;
-	} else if ((posDiff == 7 || posDiff == 9) && (((isWhiteTurn ? blackBB : whiteBB) & (1ul << endPos)) ==
-	                                              0) && (!enPassant(endPos))) {
-		std::cout << "No piece to capture with pawn" << std::endl;
+	} else if ((posDiff == 7 || posDiff == 9) &&
+	           (((isWhiteTurn ? blackBB : whiteBB) & (1ul << endPos)) == 0) && (!enPassant(endPos))) {
 		return false;
 	}
 
@@ -260,7 +256,7 @@ bool Board::isPawnMoveLegal(const std::uint64_t &startPos, const std::uint64_t &
 }
 
 bool Board::movePawnIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos) {
-	if (isPawnMoveLegal(startPos, endPos)) {
+	if (isPawnMoveLegal(startPos, endPos, currentTurn % 2 == 0)) {
 		const bool isWhiteTurn = currentTurn % 2 == 0;
 		const std::uint64_t posDiff = endPos > startPos ? endPos - startPos : startPos - endPos;
 		if (posDiff == 16 && (((startPos / 8) == 1 && isWhiteTurn) || (startPos / 8 == 6 && !isWhiteTurn)))
@@ -380,10 +376,10 @@ bool Board::isKingMoveLegal(const std::uint64_t &startPos, const std::uint64_t &
 	} else if (isCastlingMove && !canCastle(startPos, endPos)) {
 		return false;
 	} else if (isCastlingMove) { // Check that squares between king/rook are not in check, and are not occupied
-		const std::uint64_t lowerBound = startPos > endPos ? endPos : startPos;
-		const std::uint64_t upperBound = startPos < endPos ? endPos : startPos;
-		for (std::uint64_t i = lowerBound; i < upperBound; i++) {
-			if (isSquareUnderAttack(i, isWhiteTurn) || ((getGlobalBB() & i) != 0)) {
+		const bool queenSideCastle = startPos < endPos;
+		for (std::uint64_t i = startPos + (queenSideCastle ? 1 : -1); i != endPos; i += queenSideCastle ? 1 : -1) {
+			if (isSquareUnderAttack(i, isWhiteTurn) || ((getGlobalBB() & (1ul << i)) != 0)) {
+				std::cout << std::endl << i << std::endl;
 				return false;
 			}
 		}
@@ -443,10 +439,13 @@ bool Board::isSquareUnderAttack(const std::uint64_t &pos, const bool isWhiteTurn
 		if (isQueenMoveLegal(queenPos, pos))
 			return true;
 
-	if (isWhiteTurn && pos < 48 && ((blackPawnBB & (1ul << (pos + 9))) > 0 || (blackPawnBB & (1ul << (pos + 7))) > 0))
-		return true;
-	if (!isWhiteTurn && pos > 15 && ((whitePawnBB & (1ul << (pos - 9))) > 0 || (whitePawnBB & (1ul << (pos - 7))) > 0))
-		return true;
+	const std::vector<std::uint8_t> pawnPositions = getSetBits(isWhiteTurn ? blackPawnBB : whitePawnBB);
+	for (std::uint8_t pawnPos : pawnPositions) {
+		const std::uint8_t diff = pawnPos > pos ? pawnPos - pos : pos - pawnPos;
+		if (diff != 8 && diff != 16 && isPawnMoveLegal(pawnPos, pos, !isWhiteTurn))
+			return true;
+	}
 
-	return isKingMoveLegal(getSetBits(isWhiteTurn ? blackKingBB : whiteKingBB).at(0), pos);
+	return (King::getNonCastleKingMoves()->at(getSetBits(isWhiteTurn ? blackKingBB : whiteKingBB).at(0)) &
+	        (1ul << pos)) != 0;
 }

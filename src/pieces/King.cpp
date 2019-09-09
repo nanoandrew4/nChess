@@ -5,13 +5,15 @@
 
 std::array<std::uint64_t, 64> King::whiteKingMoves;
 std::array<std::uint64_t, 64> King::blackKingMoves;
+std::array<std::uint64_t, 64> King::nonCastleKingMoves;
 
 void King::initialize() {
-    whiteKingMoves = generateMoves(true);
-    blackKingMoves = generateMoves(false);
+	whiteKingMoves = generateMoves(true, true);
+	blackKingMoves = generateMoves(false, true);
+	nonCastleKingMoves = generateMoves(false, false);
 }
 
-std::array<std::uint64_t, 64> King::generateMoves(bool white) {
+std::array<std::uint64_t, 64> King::generateMoves(bool white, bool includeCastleMoves) {
     bool canPlaceRight, canPlaceLeft, canPlaceAbove, canPlaceBelow;
     std::array<std::uint64_t, 64> moves{};
 
@@ -43,9 +45,9 @@ std::array<std::uint64_t, 64> King::generateMoves(bool white) {
         moves.at(i) = move;
     }
 
-    if (white)
+	if (white && includeCastleMoves)
 	    moves.at(3) += (1UL << 1L) + (1UL << 5L);
-    else
+	else if (includeCastleMoves)
 	    moves.at(59) += (1LU << 61L) + (1LU << 57L);
 
     return moves;
