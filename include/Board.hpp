@@ -39,6 +39,8 @@ public:
 	 */
 	bool makeMove(const std::uint64_t &startPos, const std::uint64_t &endPos, char promotionPiece);
 
+	std::vector<std::array<std::uint64_t, 2>> getLegalMoves();
+
 	/**
 	 * Returns the current turn on the board, with 0 being the first turn.
 	 *
@@ -107,7 +109,7 @@ private:
 	bool matchOver = false;
 	bool whiteWins = false;
 
-	std::vector<Board> boardHistory;
+	Board *previousBoardState = nullptr;
 
 #ifdef PRINT_DEBUG_MESSAGES
 	static constexpr bool debug = true;

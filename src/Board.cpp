@@ -2,6 +2,7 @@
 
 #include <bitset>
 #include <pieces/King.hpp>
+#include <pieces/Queen.hpp>
 
 
 #include "pieces/Rook.hpp"
@@ -90,6 +91,50 @@ void Board::loadPiecesToVisBoard(std::vector<std::string> &board, const std::uin
 		board.at(piece + offset) = displayValue;
 }
 
+std::vector<std::array<std::uint64_t, 2>> Board::getLegalMoves() {
+	std::vector<std::array<std::uint64_t, 2>> legalMoves;
+
+	const bool isWhiteTurn = currentTurn % 2 == 0;
+	std::array<std::uint64_t, 6> pieceBBs{};
+	if (isWhiteTurn) {
+		pieceBBs = {whitePawnBB, whiteRookBB, whiteKnightBB, whiteBishopBB, whiteQueenBB, whiteKingBB};
+	} else {
+		pieceBBs = {blackPawnBB, blackRookBB, blackKnightBB, blackBishopBB, blackQueenBB, blackKingBB};
+	}
+
+	for (size_t pieceBBIdx = 0; pieceBBIdx < pieceBBs.size(); pieceBBIdx++) {
+		std::array<std::uint64_t, 64> *pieceMoveBBs{};
+		if (pieceBBIdx == 0)
+			pieceMoveBBs = isWhiteTurn ? Pawn::getWhiteMoves() : Pawn::getBlackMoves();
+		else if (pieceBBIdx == 1)
+			pieceMoveBBs = Rook::getMoves();
+		else if (pieceBBIdx == 2)
+			pieceMoveBBs = Knight::getMoves();
+		else if (pieceBBIdx == 3)
+			pieceMoveBBs = Bishop::getMoves();
+		else if (pieceBBIdx == 4)
+			pieceMoveBBs = Queen::getMoves();
+		else if (pieceBBIdx == 5)
+			pieceMoveBBs = isWhiteTurn ? King::getWhiteMoves() : King::getBlackMoves();
+
+		for (std::uint8_t pieceStart : getSetBits(pieceBBs.at(pieceBBIdx))) {
+			const std::vector<std::uint8_t> pieceMoves = getSetBits(pieceMoveBBs->at(pieceStart));
+			// Ignores check threats, those moves will have to be weeded out at evaluation time, too expensive otherwise
+			for (std::uint8_t pieceEnd : pieceMoves) {
+				if ((pieceBBIdx == 0 && isPawnMoveLegal(pieceStart, pieceEnd, isWhiteTurn)) ||
+				    (pieceBBIdx == 1 && isRookMoveLegal(pieceStart, pieceEnd)) ||
+				    (pieceBBIdx == 2 && isKnightMoveLegal(pieceStart, pieceEnd)) ||
+				    (pieceBBIdx == 3 && isBishopMoveLegal(pieceStart, pieceEnd)) ||
+				    (pieceBBIdx == 4 && isQueenMoveLegal(pieceStart, pieceEnd)) ||
+				    (pieceBBIdx == 5 && isKingMoveLegal(pieceStart, pieceEnd)))
+					legalMoves.push_back({pieceStart, pieceEnd});
+			}
+		}
+	}
+
+	return legalMoves;
+}
+
 std::vector<std::uint8_t> Board::getSetBits(const std::uint64_t &bb) {
 	std::vector<std::uint8_t> setBits;
 	setBits.reserve(16);
@@ -100,14 +145,19 @@ std::vector<std::uint8_t> Board::getSetBits(const std::uint64_t &bb) {
 }
 
 void Board::undoMove() {
-	this->clone(&boardHistory.back(), this);
+	if (previousBoardState != nullptr)
+		this->clone(previousBoardState, this);
+	else {
+		Board newBoard;
+		this->clone(&newBoard, this);
+	}
 }
 
 void Board::endTurn() {
 	++currentTurn; // Turn changed before saving board, so that if move is undone the turn is given to the right player
 	currBB = &((currentTurn % 2) == 0 ? whiteBB : blackBB);
 	Board clonedBoard(this);
-	boardHistory.emplace_back(clonedBoard);
+	previousBoardState = &clonedBoard;
 }
 
 bool Board::promotePawn(char promotionPiece, std::uint64_t pos) {
@@ -273,7 +323,7 @@ bool Board::isValidStraightMove(const std::uint64_t &startPos, const std::uint64
 	for (std::uint64_t pos = startPos + step; pos != endPos; pos += step)
 		if (((whiteBB | blackBB) & (1ul << pos)) != 0)
 			return false;
-	return true;
+	return ((currentTurn % 2 == 0 ? whiteBB : blackBB) & (1ul << endPos)) == 0;
 }
 
 bool Board::isRookMoveLegal(const std::uint64_t &startPos, const std::uint64_t &endPos) {
@@ -295,7 +345,8 @@ bool Board::moveRookIfLegal(const std::uint64_t &startPos, const std::uint64_t &
 }
 
 bool Board::isKnightMoveLegal(const std::uint64_t &startPos, const std::uint64_t &endPos) {
-	return (Knight::getMoves()->at(startPos) & (1ul << endPos)) != 0;
+	return (Knight::getMoves()->at(startPos) & (1ul << endPos)) != 0 &&
+	       (((currentTurn % 2 == 0 ? whiteBB : blackBB) & (1ul << endPos)) == 0);
 }
 
 bool Board::moveKnightIfLegal(const std::uint64_t &startPos, const std::uint64_t &endPos) {
@@ -317,7 +368,7 @@ bool Board::isValidDiagMove(const std::uint64_t &startPos, const std::uint64_t &
 	for (std::uint64_t i = startPos + step; i != endPos; i += step)
 		if (((whiteBB | blackBB) & (1ul << i)) != 0)
 			return false;
-	return true;
+	return ((currentTurn % 2 == 0 ? whiteBB : blackBB) & (1ul << endPos)) == 0;
 }
 
 bool Board::isBishopMoveLegal(const std::uint64_t &startPos, const std::uint64_t &endPos) {
@@ -370,6 +421,8 @@ bool Board::isKingMoveLegal(const std::uint64_t &startPos, const std::uint64_t &
 	const bool isCastlingMove = (endPos - startPos == 2 || startPos - endPos == 2);
 
 	if (((moves->at(startPos)) & (1ul << endPos)) == 0) {
+		return false;
+	} else if (((isWhiteTurn ? whiteBB : blackBB) & (1ul << endPos)) != 0) {
 		return false;
 	} else if (isSquareUnderAttack(endPos, isWhiteTurn)) {
 		return false;

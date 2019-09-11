@@ -114,6 +114,12 @@ void runBenchmark(int startArg, int numOfArgs, char *args[]) {
 void playMatch() {
 	Board b;
 	while (!b.isMatchOver()) {
+		const std::vector<std::array<std::uint64_t, 2>> legalMoves = b.getLegalMoves();
+		std::cout << "Legal moves: ";
+		for (std::array<std::uint64_t, 2> legalMove : legalMoves)
+			std::cout << "[" << legalMove.at(0) << ", " << legalMove.at(1) << "]"
+			          << (legalMove == legalMoves.back() ? "" : " / ");
+		std::cout << std::endl;
 		b.displayBoard();
 		std::string moveStr;
 		std::array<char, 5> moveArr{};
